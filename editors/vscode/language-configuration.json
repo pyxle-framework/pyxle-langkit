@@ -1,0 +1,51 @@
+{
+  "comments": {
+    "lineComment": "//",
+    "blockComment": ["/*", "*/"]
+  },
+  "brackets": [
+    ["{", "}"],
+    ["[", "]"],
+    ["(", ")"],
+    ["<", ">"]
+  ],
+  "autoClosingPairs": [
+    { "open": "{", "close": "}" },
+    { "open": "[", "close": "]" },
+    { "open": "(", "close": ")" },
+    { "open": "'", "close": "'", "notIn": ["string", "comment"] },
+    { "open": "\"", "close": "\"", "notIn": ["string", "comment"] },
+    { "open": "`", "close": "`", "notIn": ["string", "comment"] },
+    { "open": "<", "close": ">", "notIn": ["string", "comment"] }
+  ],
+  "surroundingPairs": [
+    ["{", "}"],
+    ["[", "]"],
+    ["(", ")"],
+    ["'", "'"],
+    ["\"", "\""],
+    ["`", "`"],
+    ["<", ">"]
+  ],
+  "folding": {
+    "markers": {
+      "start": "^\\s*(?:#\\s*---\\s*(?:python|server|javascript|client)|(?:def|class|async\\s+def|if|for|while|with|try|export\\s+default\\s+function|function|const)\\b)",
+      "end": "^\\s*$"
+    }
+  },
+  "indentationRules": {
+    "increaseIndentPattern": "^\\s*(?:def\\b|class\\b|if\\b|elif\\b|else:|for\\b|while\\b|with\\b|try:|except\\b|finally:|async\\s+def\\b|function\\b|=>\\s*\\{|\\{).*$",
+    "decreaseIndentPattern": "^\\s*(?:elif\\b|else:|except\\b|finally:|\\}|\\)|\\])"
+  },
+  "onEnterRules": [
+    {
+      "beforeText": ":\\s*$",
+      "action": { "indent": "indent" }
+    },
+    {
+      "beforeText": "\\{\\s*$",
+      "afterText": "^\\s*\\}",
+      "action": { "indent": "indent" }
+    }
+  ]
+}

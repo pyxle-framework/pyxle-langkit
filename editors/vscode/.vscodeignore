@@ -1,0 +1,10 @@
+**/*.ts
+!out/**/*.js
+src/**
+test/**
+node_modules/**
+.vscode/**
+.ruff_cache/**
+tsconfig.json
+**/*.map
+**/*.vsix

@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[codz]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Node
+node_modules/
+package-lock.json
+
+# VS Code extension build
+editors/vscode/out/
+editors/vscode/node_modules/
+editors/vscode/*.vsix
+
+# Ruff
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

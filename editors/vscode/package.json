@@ -1,0 +1,106 @@
+{
+  "name": "pyxle-language-tools",
+  "displayName": "Pyxle Language Tools",
+  "publisher": "pyxle",
+  "version": "0.1.0-beta",
+  "description": "Language support for Pyxle .pyx files — syntax highlighting, diagnostics, completions, hover, go-to-definition, and formatting.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pyxle-framework/pyxle-langkit"
+  },
+  "bugs": {
+    "url": "https://github.com/pyxle-framework/pyxle-langkit/issues"
+  },
+  "homepage": "https://pyxle.dev",
+  "keywords": ["pyxle", "pyx", "python", "react", "jsx", "lsp"],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages"],
+  "activationEvents": ["onLanguage:pyxle"],
+  "main": "./out/extension.js",
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "tsc --noEmit",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "package": "npx @vscode/vsce package --no-dependencies"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "pyxle",
+        "aliases": ["Pyxle", "pyxle"],
+        "extensions": [".pyx"],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/pyx.svg",
+          "dark": "./icons/pyx.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "pyxle",
+        "scopeName": "source.pyxle",
+        "path": "./syntaxes/pyx.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.python": "python",
+          "source.js.jsx": "javascriptreact"
+        }
+      }
+    ],
+    "configuration": [
+      {
+        "title": "Pyxle",
+        "properties": {
+          "pyxle.langserver.command": {
+            "type": "string",
+            "default": "pyxle-langserver",
+            "description": "Command to launch the Pyxle language server. Install via: pip install pyxle-langkit"
+          },
+          "pyxle.langserver.args": {
+            "type": "array",
+            "items": { "type": "string" },
+            "default": ["--stdio"],
+            "description": "Arguments forwarded to the language server command."
+          },
+          "pyxle.formatting.python": {
+            "type": "string",
+            "default": "ruff",
+            "enum": ["ruff", "black", "none"],
+            "description": "Python formatter for .pyx files."
+          },
+          "pyxle.formatting.jsx": {
+            "type": "string",
+            "default": "prettier",
+            "enum": ["prettier", "none"],
+            "description": "JSX formatter for .pyx files."
+          },
+          "pyxle.diagnostics.pyflakes": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable pyflakes diagnostics for Python sections."
+          },
+          "pyxle.diagnostics.react": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable React/JSX analysis via Babel."
+          }
+        }
+      }
+    ]
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "@vscode/test-electron": "^2.3.0",
+    "@vscode/vsce": "^2.22.0"
+  }
+}
