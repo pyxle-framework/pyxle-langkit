@@ -2,7 +2,7 @@
   "name": "pyxle-language-tools",
   "displayName": "Pyxle Language Tools",
   "publisher": "pyxle",
-  "version": "0.1.0-beta",
+  "version": "0.1.0",
   "description": "Language support for Pyxle .pyx files — syntax highlighting, diagnostics, completions, hover, go-to-definition, and formatting.",
   "license": "MIT",
   "repository": {
