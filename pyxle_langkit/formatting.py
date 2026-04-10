@@ -40,91 +40,30 @@ class TextEdit:
 
 
 # ------------------------------------------------------------------
-# Section parsing (lightweight, no compiler dependency)
+# Section parsing (delegates to the core compiler parser)
 # ------------------------------------------------------------------
 
 
 def _find_sections(
     text: str,
+    path: Path | None = None,
 ) -> tuple[tuple[str, tuple[int, ...]], tuple[str, tuple[int, ...]]]:
     """Split a .pyx file into Python and JSX sections with line maps.
 
     Returns ``((python_code, python_line_numbers), (jsx_code, jsx_line_numbers))``.
-    Uses the same AST-based boundary detection as the compiler parser.
+    Delegates to the core compiler parser which correctly tracks JavaScript
+    state (template literals, comments, bracket depth) to avoid misclassifying
+    code inside backtick strings as Python.
     """
-    import ast as _ast
+    from .parser_adapter import TolerantParser
 
-    lines = text.split("\n")
-    n = len(lines)
-
-    python_lines: list[str] = []
-    python_line_numbers: list[int] = []
-    jsx_lines: list[str] = []
-    jsx_line_numbers: list[int] = []
-
-    cursor = 0
-    while cursor < n:
-        # Try to grow the largest Python prefix.
-        end = _find_largest_python_at(lines, cursor, n, _ast)
-        if end > cursor:
-            for i in range(cursor, end):
-                python_lines.append(lines[i])
-                python_line_numbers.append(i + 1)  # 1-indexed.
-            cursor = end
-        else:
-            # Grow JSX until Python resumes.
-            jsx_end = cursor + 1
-            while jsx_end < n:
-                probe = _find_largest_python_at(lines, jsx_end, n, _ast)
-                if probe > jsx_end:
-                    break
-                jsx_end += 1
-
-            for i in range(cursor, jsx_end):
-                jsx_lines.append(lines[i])
-                jsx_line_numbers.append(i + 1)
-            cursor = jsx_end
-
-    python_code = "\n".join(python_lines) + ("\n" if python_lines else "")
-    jsx_code = "\n".join(jsx_lines) + ("\n" if jsx_lines else "")
+    parser = TolerantParser()
+    doc = parser.parse_text(text, path=path)
 
     return (
-        (python_code, tuple(python_line_numbers)),
-        (jsx_code, tuple(jsx_line_numbers)),
+        (doc.python_code, tuple(doc.python_line_numbers)),
+        (doc.jsx_code, tuple(doc.jsx_line_numbers)),
     )
-
-
-def _find_largest_python_at(
-    lines: list[str], start: int, n: int, _ast: object,
-) -> int:
-    """Return the largest k such that lines[start:k] is valid Python."""
-    import ast as ast_mod
-
-    if start >= n:
-        return start
-
-    rest = "\n".join(lines[start:n])
-    if not rest.strip():
-        return n
-
-    try:
-        ast_mod.parse(rest)
-        return n
-    except SyntaxError as exc:
-        first_failure = (exc.lineno or 1) - 1
-
-    upper = min(first_failure + 1, n - start)
-    while upper > 0:
-        prefix = "\n".join(lines[start : start + upper])
-        if not prefix.strip():
-            return start
-        try:
-            ast_mod.parse(prefix)
-            return start + upper
-        except SyntaxError:
-            upper -= 1
-
-    return start
 
 
 # ------------------------------------------------------------------
@@ -247,7 +186,7 @@ async def format_document(
 
     If a formatter is not installed, that section is silently skipped.
     """
-    (python_code, python_line_numbers), (jsx_code, jsx_line_numbers) = _find_sections(text)
+    (python_code, python_line_numbers), (jsx_code, jsx_line_numbers) = _find_sections(text, path=path)
 
     # Run both formatters concurrently.
     python_result, jsx_result = await asyncio.gather(
