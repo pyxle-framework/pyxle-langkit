@@ -17,6 +17,7 @@
   "engines": {
     "vscode": "^1.85.0"
   },
+  "icon": "icons/pyx.png",
   "categories": ["Programming Languages"],
   "activationEvents": ["onLanguage:pyxle"],
   "main": "./out/extension.js",
