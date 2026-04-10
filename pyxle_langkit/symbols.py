@@ -162,12 +162,25 @@ def _extract_jsx_export_symbols(
     """Extract export declarations from JSX code via heuristic parsing.
 
     Looks for ``export default`` and ``export function/const`` patterns.
+    Skips lines that are inside template literals (backtick strings) to
+    avoid treating code snippets in template literals as real exports.
     """
     if not document.has_jsx:
         return
 
     jsx_lines = document.jsx_code.splitlines()
+    in_template_literal = False
+
     for i, raw_line in enumerate(jsx_lines, start=1):
+        # Track template literal state: count unescaped backticks.
+        # A line with an odd number of backticks toggles the state.
+        backtick_count = _count_unescaped_backticks(raw_line)
+        if backtick_count % 2 == 1:
+            in_template_literal = not in_template_literal
+
+        if in_template_literal:
+            continue
+
         line = raw_line.strip()
         pyx_line = document.map_jsx_line(i)
         target_line = pyx_line or i
@@ -193,6 +206,17 @@ def _extract_jsx_export_symbols(
                         detail="named export",
                     )
                 )
+
+
+def _count_unescaped_backticks(line: str) -> int:
+    """Count backticks in a line that are not preceded by a backslash."""
+    count = 0
+    prev = ""
+    for ch in line:
+        if ch == "`" and prev != "\\":
+            count += 1
+        prev = ch
+    return count
 
 
 def _parse_export_name(line: str, prefix: str) -> str | None:

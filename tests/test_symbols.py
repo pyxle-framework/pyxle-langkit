@@ -364,3 +364,23 @@ class TestExportNameParsing:
         assert len(default) >= 1
         # Falls back to "default" when no name can be parsed.
         assert default[0].name == "default"
+
+    def test_export_inside_template_literal_ignored(self) -> None:
+        """Exports inside template literals should not be treated as real symbols."""
+        text = dedent("""\
+            ---
+
+            const DEMO = `
+            export default function FakeComponent() {
+                return <div>not real</div>;
+            }`;
+
+            export default function RealComponent() {
+                return <div>real</div>;
+            }
+        """)
+        doc = _make_doc(text)
+        symbols = extract_document_symbols(doc)
+        names = [s.name for s in symbols]
+        assert "RealComponent" in names
+        assert "FakeComponent" not in names
