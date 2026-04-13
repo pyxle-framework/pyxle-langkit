@@ -88,14 +88,13 @@ class TypeScriptBridge:
             return False
 
         # Check that typescript is importable
-        ts_check = _find_typescript(project_root)
-        if not ts_check:
+        node_modules = _find_typescript(project_root)
+        if node_modules is None:
             logger.info("TypeScript package not found — JSX service unavailable")
             return False
 
         env = {**os.environ}
-        if project_root:
-            env["NODE_PATH"] = str(project_root / "node_modules")
+        env["NODE_PATH"] = str(node_modules)
 
         try:
             self._process = subprocess.Popen(
@@ -295,25 +294,58 @@ def _find_node() -> str | None:
     return shutil.which("node")
 
 
-def _find_typescript(project_root: Path | None) -> bool:
-    """Check if TypeScript is available."""
+def _find_typescript(project_root: Path | None) -> Path | None:
+    """Find the ``node_modules`` directory that contains TypeScript.
+
+    Resolution order:
+    1. Walk up from *project_root* (mirrors Node.js resolution).
+    2. Check immediate child directories (monorepo support).
+    3. Fall back to a global ``require.resolve`` check.
+
+    Returns the ``node_modules`` path, or ``None``.
+    """
     if project_root:
-        ts_path = project_root / "node_modules" / "typescript"
-        if ts_path.is_dir():
-            return True
+        # Walk up.
+        current = project_root.resolve()
+        while True:
+            node_modules = current / "node_modules"
+            if (node_modules / "typescript").is_dir():
+                return node_modules
+            parent = current.parent
+            if parent == current:
+                break
+            current = parent
+
+        # Check immediate child directories (monorepo / multi-project).
+        try:
+            for child in project_root.iterdir():
+                if child.is_dir() and not child.name.startswith("."):
+                    node_modules = child / "node_modules" / "typescript"
+                    if node_modules.is_dir():
+                        return child / "node_modules"
+        except OSError:
+            pass
 
     # Check global
     node = _find_node()
     if node is None:
-        return False
+        return None
 
     try:
         result = subprocess.run(
-            [node, "-e", "require('typescript')"],
+            [node, "-e", "console.log(require.resolve('typescript'))"],
             capture_output=True,
             timeout=5,
             cwd=str(project_root) if project_root else None,
         )
-        return result.returncode == 0
+        if result.returncode == 0:
+            ts_path = Path(result.stdout.decode().strip())
+            # e.g. /usr/lib/node_modules/typescript/lib/typescript.js
+            # → return /usr/lib/node_modules
+            for parent in ts_path.parents:
+                if parent.name == "node_modules":
+                    return parent
+            return None
     except Exception:
-        return False
+        pass
+    return None

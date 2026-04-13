@@ -148,29 +148,45 @@ def _on_initialized(server: PyxleLanguageServer, params: object) -> None:
     The index is populated lazily as files are opened — no background
     scan to avoid event-loop lifecycle issues.
     """
-    root_path: Path | None = None
+    workspace_paths: list[Path] = []
     try:
         folders = server.workspace.folders
         if folders:
-            first_uri = next(iter(folders.values())).uri
-            root_path = _uri_to_path(first_uri)
+            for folder in folders.values():
+                p = _uri_to_path(folder.uri)
+                if p and p.is_dir():
+                    workspace_paths.append(p)
     except Exception:
         pass
 
-    if root_path is None:
+    if not workspace_paths:
         try:
             root_uri = getattr(server.workspace, "root_uri", None)
             if root_uri:
-                root_path = _uri_to_path(root_uri)
+                p = _uri_to_path(root_uri)
+                if p and p.is_dir():
+                    workspace_paths.append(p)
         except Exception:
             pass
 
-    if root_path and root_path.is_dir():
+    root_path = workspace_paths[0] if workspace_paths else None
+    if root_path:
         server._workspace_index = WorkspaceIndex(root_path)
         server._project_root = root_path
 
     # Start the TypeScript language service for JSX intelligence.
-    ts_ok = server._ts_bridge.start(project_root=root_path)
+    # Try each workspace folder — TypeScript may be in a subfolder's
+    # node_modules (e.g. a monorepo where the app is a child directory).
+    ts_ok = False
+    for ws_path in workspace_paths:
+        ts_ok = server._ts_bridge.start(project_root=ws_path)
+        if ts_ok:
+            break
+
+    if not ts_ok and root_path:
+        # Last resort: try the root anyway (global TypeScript).
+        ts_ok = server._ts_bridge.start(project_root=root_path)
+
     if ts_ok:
         logger.info("TypeScript bridge started — JSX intelligence available")
     else:
