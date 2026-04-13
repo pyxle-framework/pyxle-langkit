@@ -1,6 +1,6 @@
 # Pyxle Language Toolkit
 
-Language tools for [Pyxle](https://pyxle.dev) `.pyx` files — LSP server, linter, and VS Code extension.
+Language tools for [Pyxle](https://pyxle.dev) `.pyxl` files — LSP server, linter, and VS Code extension.
 
 ## Features
 

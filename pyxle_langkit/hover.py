@@ -1,4 +1,4 @@
-"""Hover information provider for ``.pyx`` files.
+"""Hover information provider for ``.pyxl`` files.
 
 Combines Jedi-based Python hover with Pyxle-specific documentation
 for decorators, components, and data properties.
@@ -43,7 +43,7 @@ async def loader(request: Request):
 
 - Runs on every page request (SSR and client navigation).
 - Must be `async`.
-- Only one `@server` function per `.pyx` file.
+- Only one `@server` function per `.pyxl` file.
 """
 
 _ACTION_HOVER = """\
@@ -62,7 +62,7 @@ async def submit_form(request: Request):
 - Receives a Starlette `Request` object.
 - Must return a JSON-serializable dict.
 - Raise `ActionError` for structured error responses.
-- Multiple `@action` functions per file are allowed.
+- Multiple `@action` functions per `.pyxl` file are allowed.
 """
 
 # ------------------------------------------------------------------
@@ -184,7 +184,7 @@ _DATA_PROP_RE = re.compile(r"\bdata\b")
 
 
 class HoverProvider:
-    """Provides hover information for ``.pyx`` files."""
+    """Provides hover information for ``.pyxl`` files."""
 
     def hover(
         self,
@@ -347,7 +347,7 @@ def _map_to_virtual_line(
     pyx_line: int,
     virtual_line_numbers: tuple[int, ...],
 ) -> int | None:
-    """Map a 1-indexed .pyx line to a 1-indexed virtual Python line."""
+    """Map a 1-indexed .pyxl line to a 1-indexed virtual Python line."""
     for virtual_idx, orig_line in enumerate(virtual_line_numbers):
         if orig_line == pyx_line:
             return virtual_idx + 1
@@ -355,7 +355,7 @@ def _map_to_virtual_line(
 
 
 def _get_python_line_text(document: PyxDocument, pyx_line: int) -> str | None:
-    """Get the text of a Python line corresponding to a .pyx line number."""
+    """Get the text of a Python line corresponding to a .pyxl line number."""
     py_lines = document.python_code.splitlines()
     for py_idx, orig_line in enumerate(document.python_line_numbers):
         if orig_line == pyx_line and py_idx < len(py_lines):
@@ -364,7 +364,7 @@ def _get_python_line_text(document: PyxDocument, pyx_line: int) -> str | None:
 
 
 def _get_jsx_line_text(document: PyxDocument, pyx_line: int) -> str | None:
-    """Get the text of a JSX line corresponding to a .pyx line number."""
+    """Get the text of a JSX line corresponding to a .pyxl line number."""
     jsx_lines = document.jsx_code.splitlines()
     for jsx_idx, orig_line in enumerate(document.jsx_line_numbers):
         if orig_line == pyx_line and jsx_idx < len(jsx_lines):

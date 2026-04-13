@@ -1,12 +1,12 @@
 # CLAUDE.md — Pyxle Langkit v2
 
-Language tooling suite for Pyxle — powers IDE support for `.pyx` files.
+Language tooling suite for Pyxle — powers IDE support for `.pyxl` files.
 
 ---
 
 ## Project Overview
 
-Pyxle Langkit provides IDE support for `.pyx` files — the hybrid Python/JSX format
+Pyxle Langkit provides IDE support for `.pyxl` files — the hybrid Python/JSX format
 used by the Pyxle framework. The architecture is **server-driven**: all intelligence
 lives in the Python LSP server, and the VS Code extension is a thin LSP client.
 
@@ -27,8 +27,8 @@ pyxle_langkit/
 |-- __init__.py           # Public API exports
 |-- server.py             # PyxleLanguageServer (pygls) — main LSP orchestrator
 |-- parser_adapter.py     # Tolerant parser wrapper (never raises)
-|-- document.py           # PyxDocument — parsed .pyx with line mapping
-|-- workspace.py          # WorkspaceIndex — tracks all .pyx files
+|-- document.py           # PyxDocument — parsed .pyxl with line mapping
+|-- workspace.py          # WorkspaceIndex — tracks all .pyxl files
 |-- linter.py             # Static analysis: pyflakes, Pyxle rules, React rules
 |-- react_checker.py      # Babel-based JSX validation via Node.js
 |-- completions.py        # jedi + Pyxle-specific completions
@@ -48,7 +48,7 @@ editors/vscode/           # VS Code extension (TypeScript, thin client)
 |   |-- extension.ts      # Activation + LSP client lifecycle
 |   +-- status.ts         # Status bar management
 |-- syntaxes/
-|   +-- pyx.tmLanguage.json
+|   +-- pyxl.tmLanguage.json
 |-- test/
 |   |-- suite/
 |   |   +-- extension.test.ts
@@ -132,12 +132,12 @@ Scope examples: `linter`, `server`, `completions`, `hover`, `definitions`,
 - Python issues use pyflakes — don't reinvent its checks
 - `server` and `action` are whitelisted as globals (injected by Pyxle runtime)
 - JSX issues delegate to Node.js/Babel
-- All issues must have accurate line/column mapped to the original `.pyx` file
+- All issues must have accurate line/column mapped to the original `.pyxl` file
 
 ### Completions / Hover / Definitions
 - Use jedi for Python intelligence — import safely with try/except
 - If jedi is not available, return Pyxle-specific results only (never crash)
-- Map all positions: .pyx → virtual Python → jedi → virtual Python → .pyx
+- Map all positions: .pyxl → virtual Python → jedi → virtual Python → .pyxl
 
 ### LSP Server
 - Never block the event loop with synchronous I/O

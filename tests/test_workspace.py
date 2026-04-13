@@ -11,7 +11,7 @@ from pyxle_langkit.workspace import WorkspaceIndex, WorkspaceSymbol
 
 
 class TestScanFindsPyxFiles:
-    """WorkspaceIndex.scan discovers .pyx files under pages/."""
+    """WorkspaceIndex.scan discovers .pyxl files under pages/."""
 
     def test_scan_finds_files(self, tmp_project: Path) -> None:
         index = WorkspaceIndex(tmp_project)
@@ -23,8 +23,8 @@ class TestScanFindsPyxFiles:
         index = WorkspaceIndex(tmp_project)
         index.scan()
         paths = {p.name for p in index.all_documents()}
-        assert "index.pyx" in paths
-        assert "about.pyx" in paths
+        assert "index.pyxl" in paths
+        assert "about.pyxl" in paths
 
     def test_scan_parses_documents(self, tmp_project: Path) -> None:
         index = WorkspaceIndex(tmp_project)
@@ -36,27 +36,27 @@ class TestScanFindsPyxFiles:
 class TestUpdateAndGet:
     """WorkspaceIndex.update stores and .get retrieves a document."""
 
-    def test_update_then_get(self, tmp_path: Path, sample_pyx_text: str) -> None:
+    def test_update_then_get(self, tmp_path: Path, sample_pyxl_text: str) -> None:
         index = WorkspaceIndex(tmp_path)
         parser = TolerantParser()
-        doc = parser.parse_text(sample_pyx_text, path=tmp_path / "test.pyx")
+        doc = parser.parse_text(sample_pyxl_text, path=tmp_path / "test.pyxl")
 
-        index.update(tmp_path / "test.pyx", doc)
-        retrieved = index.get(tmp_path / "test.pyx")
+        index.update(tmp_path / "test.pyxl", doc)
+        retrieved = index.get(tmp_path / "test.pyxl")
         assert retrieved is doc
 
     def test_get_missing_returns_none(self, tmp_path: Path) -> None:
         index = WorkspaceIndex(tmp_path)
-        assert index.get(tmp_path / "nonexistent.pyx") is None
+        assert index.get(tmp_path / "nonexistent.pyxl") is None
 
     def test_update_replaces_existing(
-        self, tmp_path: Path, sample_pyx_text: str, python_only_text: str
+        self, tmp_path: Path, sample_pyxl_text: str, python_only_text: str
     ) -> None:
         index = WorkspaceIndex(tmp_path)
         parser = TolerantParser()
-        path = tmp_path / "test.pyx"
+        path = tmp_path / "test.pyxl"
 
-        doc1 = parser.parse_text(sample_pyx_text, path=path)
+        doc1 = parser.parse_text(sample_pyxl_text, path=path)
         doc2 = parser.parse_text(python_only_text, path=path)
 
         index.update(path, doc1)
@@ -67,11 +67,11 @@ class TestUpdateAndGet:
 class TestRemove:
     """WorkspaceIndex.remove removes a document from the index."""
 
-    def test_remove_existing(self, tmp_path: Path, sample_pyx_text: str) -> None:
+    def test_remove_existing(self, tmp_path: Path, sample_pyxl_text: str) -> None:
         index = WorkspaceIndex(tmp_path)
         parser = TolerantParser()
-        path = tmp_path / "test.pyx"
-        doc = parser.parse_text(sample_pyx_text, path=path)
+        path = tmp_path / "test.pyxl"
+        doc = parser.parse_text(sample_pyxl_text, path=path)
 
         index.update(path, doc)
         index.remove(path)
@@ -80,7 +80,7 @@ class TestRemove:
     def test_remove_nonexistent_is_noop(self, tmp_path: Path) -> None:
         index = WorkspaceIndex(tmp_path)
         # Should not raise.
-        index.remove(tmp_path / "ghost.pyx")
+        index.remove(tmp_path / "ghost.pyxl")
 
 
 class TestFindSymbols:
@@ -159,8 +159,8 @@ class TestExtractSymbolsFromWorkspace:
     def test_variable_assignment_found(self, tmp_path: Path) -> None:
         pages = tmp_path / "pages"
         pages.mkdir()
-        pyx = pages / "test.pyx"
-        pyx.write_text(
+        pyxl = pages / "test.pyxl"
+        pyxl.write_text(
             dedent("""\
                 MY_VAR = 42
                 typed_var: int = 10
@@ -179,8 +179,8 @@ class TestExtractSymbolsFromWorkspace:
     def test_annotated_assignment_found(self, tmp_path: Path) -> None:
         pages = tmp_path / "pages"
         pages.mkdir()
-        pyx = pages / "test.pyx"
-        pyx.write_text("typed_var: int = 10\n", encoding="utf-8")
+        pyxl = pages / "test.pyxl"
+        pyxl.write_text("typed_var: int = 10\n", encoding="utf-8")
         index = WorkspaceIndex(tmp_path)
         index.scan()
         symbols = index.find_symbols("typed_var")
@@ -190,8 +190,8 @@ class TestExtractSymbolsFromWorkspace:
     def test_async_function_found(self, tmp_path: Path) -> None:
         pages = tmp_path / "pages"
         pages.mkdir()
-        pyx = pages / "test.pyx"
-        pyx.write_text(
+        pyxl = pages / "test.pyxl"
+        pyxl.write_text(
             dedent("""\
                 async def my_async():
                     pass
@@ -207,8 +207,8 @@ class TestExtractSymbolsFromWorkspace:
     def test_class_found(self, tmp_path: Path) -> None:
         pages = tmp_path / "pages"
         pages.mkdir()
-        pyx = pages / "test.pyx"
-        pyx.write_text("class MyClass:\n    pass\n", encoding="utf-8")
+        pyxl = pages / "test.pyxl"
+        pyxl.write_text("class MyClass:\n    pass\n", encoding="utf-8")
         index = WorkspaceIndex(tmp_path)
         index.scan()
         symbols = index.find_symbols("MyClass")
@@ -218,13 +218,13 @@ class TestExtractSymbolsFromWorkspace:
     def test_syntax_error_returns_no_symbols(self, tmp_path: Path) -> None:
         pages = tmp_path / "pages"
         pages.mkdir()
-        pyx = pages / "test.pyx"
-        pyx.write_text("def broken(\n    pass\n", encoding="utf-8")
+        pyxl = pages / "test.pyxl"
+        pyxl.write_text("def broken(\n    pass\n", encoding="utf-8")
         index = WorkspaceIndex(tmp_path)
         index.scan()
         symbols = index.find_symbols("")
         # Broken file yields no symbols from the AST extraction.
-        file_symbols = [s for s in symbols if s.path == pyx]
+        file_symbols = [s for s in symbols if s.path == pyxl]
         assert len(file_symbols) == 0
 
     def test_loader_tagged_as_loader(self, tmp_project: Path) -> None:
@@ -238,8 +238,8 @@ class TestExtractSymbolsFromWorkspace:
     def test_action_tagged_as_action(self, tmp_path: Path) -> None:
         pages = tmp_path / "pages"
         pages.mkdir()
-        pyx = pages / "test.pyx"
-        pyx.write_text(
+        pyxl = pages / "test.pyxl"
+        pyxl.write_text(
             dedent("""\
                 @action
                 async def submit(request):

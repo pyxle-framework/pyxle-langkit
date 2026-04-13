@@ -45,9 +45,9 @@ def test_python_definition_via_jedi(tmp_path):
 
         export default function Page() { return <div/>; }
     """).strip()
-    pyx_file = tmp_path / "test.pyx"
-    pyx_file.write_text(text)
-    doc = _parse(text, path=pyx_file)
+    pyxl_file = tmp_path / "test.pyxl"
+    pyxl_file.write_text(text)
+    doc = _parse(text, path=pyxl_file)
     provider = DefinitionProvider()
 
     # Mock jedi.Script to return a definition with path and line.
@@ -81,9 +81,9 @@ def test_python_definition_request_import(tmp_path):
 
         export default function Page() { return <div/>; }
     """).strip()
-    pyx_file = tmp_path / "test.pyx"
-    pyx_file.write_text(text)
-    doc = _parse(text, path=pyx_file)
+    pyxl_file = tmp_path / "test.pyxl"
+    pyxl_file.write_text(text)
+    doc = _parse(text, path=pyxl_file)
     provider = DefinitionProvider()
 
     mock_defn = MagicMock()
@@ -110,9 +110,9 @@ def test_python_definition_request_import(tmp_path):
 
 def test_cross_section_data_key(tmp_path):
     """Cursor on data.title in JSX finds 'title' key in the loader return."""
-    pyx_file = tmp_path / "page.pyx"
-    pyx_file.write_text(SAMPLE)
-    doc = _parse(SAMPLE, path=pyx_file)
+    pyxl_file = tmp_path / "page.pyxl"
+    pyxl_file.write_text(SAMPLE)
+    doc = _parse(SAMPLE, path=pyxl_file)
     provider = DefinitionProvider()
 
     # Line 10: "    return <h1>{data.title}</h1>;"
@@ -123,7 +123,7 @@ def test_cross_section_data_key(tmp_path):
     assert len(locations) == 1
 
     loc = locations[0]
-    assert loc.path == pyx_file
+    assert loc.path == pyxl_file
     # The key "title" should be in the Python section's return dict.
     assert loc.line > 0
 
@@ -143,9 +143,9 @@ def test_cross_section_data_key_count(tmp_path):
             return <span>{data.count}</span>;
         }
     """).strip()
-    pyx_file = tmp_path / "page.pyx"
-    pyx_file.write_text(text)
-    doc = _parse(text, path=pyx_file)
+    pyxl_file = tmp_path / "page.pyxl"
+    pyxl_file.write_text(text)
+    doc = _parse(text, path=pyxl_file)
     provider = DefinitionProvider()
 
     # Line 10: "    return <span>{data.count}</span>;"
@@ -153,7 +153,7 @@ def test_cross_section_data_key_count(tmp_path):
     col = line_text.index("count")
     locations = provider.goto_definition(doc, line=10, column=col)
     assert len(locations) == 1
-    assert locations[0].path == pyx_file
+    assert locations[0].path == pyxl_file
 
 
 # ------------------------------------------------------------------
@@ -193,9 +193,9 @@ def test_definition_external_module(tmp_path):
 
         export default function Page() { return <div/>; }
     """).strip()
-    pyx_file = tmp_path / "test.pyx"
-    pyx_file.write_text(text)
-    doc = _parse(text, path=pyx_file)
+    pyxl_file = tmp_path / "test.pyxl"
+    pyxl_file.write_text(text)
+    doc = _parse(text, path=pyxl_file)
     provider = DefinitionProvider()
 
     mock_defn = MagicMock()
@@ -299,9 +299,9 @@ def test_data_key_not_in_return(tmp_path):
             return <h1>{data.nonexistent}</h1>;
         }
     """).strip()
-    pyx_file = tmp_path / "test.pyx"
-    pyx_file.write_text(text)
-    doc = _parse(text, path=pyx_file)
+    pyxl_file = tmp_path / "test.pyxl"
+    pyxl_file.write_text(text)
+    doc = _parse(text, path=pyxl_file)
     provider = DefinitionProvider()
 
     line_text = "    return <h1>{data.nonexistent}</h1>;"
@@ -316,7 +316,7 @@ def test_data_key_not_in_return(tmp_path):
 
 
 def test_map_from_virtual_line():
-    """_map_from_virtual_line correctly maps back to .pyx lines."""
+    """_map_from_virtual_line correctly maps back to .pyxl lines."""
     from pyxle_langkit.definitions import _map_from_virtual_line
 
     line_numbers = (1, 2, 3, 5, 6)
@@ -351,9 +351,9 @@ def test_python_definition_jedi_exception(tmp_path):
 
         export default function Page() { return <div/>; }
     """).strip()
-    pyx_file = tmp_path / "test.pyx"
-    pyx_file.write_text(text)
-    doc = _parse(text, path=pyx_file)
+    pyxl_file = tmp_path / "test.pyxl"
+    pyxl_file.write_text(text)
+    doc = _parse(text, path=pyxl_file)
     provider = DefinitionProvider()
 
     mock_script = MagicMock()
@@ -380,9 +380,9 @@ def test_python_definition_none_line_skipped(tmp_path):
 
         export default function Page() { return <div/>; }
     """).strip()
-    pyx_file = tmp_path / "test.pyx"
-    pyx_file.write_text(text)
-    doc = _parse(text, path=pyx_file)
+    pyxl_file = tmp_path / "test.pyxl"
+    pyxl_file.write_text(text)
+    doc = _parse(text, path=pyxl_file)
     provider = DefinitionProvider()
 
     mock_defn = MagicMock()
@@ -401,12 +401,12 @@ def test_python_definition_none_line_skipped(tmp_path):
 
 
 # ------------------------------------------------------------------
-# Python definition: defn within virtual file maps back to pyx
+# Python definition: defn within virtual file maps back to pyxl
 # ------------------------------------------------------------------
 
 
-def test_python_definition_maps_back_to_pyx(tmp_path):
-    """Definition in the virtual file gets mapped back to .pyx line numbers."""
+def test_python_definition_maps_back_to_pyxl(tmp_path):
+    """Definition in the virtual file gets mapped back to .pyxl line numbers."""
     from unittest.mock import MagicMock, patch
 
     text = dedent("""\
@@ -417,14 +417,14 @@ def test_python_definition_maps_back_to_pyx(tmp_path):
 
         export default function Page() { return <div/>; }
     """).strip()
-    pyx_file = tmp_path / "test.pyx"
-    pyx_file.write_text(text)
-    doc = _parse(text, path=pyx_file)
+    pyxl_file = tmp_path / "test.pyxl"
+    pyxl_file.write_text(text)
+    doc = _parse(text, path=pyxl_file)
     provider = DefinitionProvider()
 
     # Simulate Jedi returning a definition within the same file.
     mock_defn = MagicMock()
-    mock_defn.module_path = pyx_file
+    mock_defn.module_path = pyxl_file
     mock_defn.line = 3  # Virtual line 3 = "def helper()"
     mock_defn.column = 4
 

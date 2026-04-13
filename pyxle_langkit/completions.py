@@ -1,4 +1,4 @@
-"""Completion provider for ``.pyx`` files.
+"""Completion provider for ``.pyxl`` files.
 
 Combines Jedi-based Python completions with Pyxle-specific component
 and import completions for JSX sections.
@@ -127,7 +127,7 @@ _JEDI_KIND_MAP: dict[str, CompletionItemKind] = {
 
 
 class CompletionProvider:
-    """Provides completions for Python and JSX sections of ``.pyx`` files."""
+    """Provides completions for Python and JSX sections of ``.pyxl`` files."""
 
     def complete(
         self,
@@ -135,7 +135,7 @@ class CompletionProvider:
         line: int,
         column: int,
     ) -> Sequence[CompletionItem]:
-        """Provide completions at the given position in a ``.pyx`` file.
+        """Provide completions at the given position in a ``.pyxl`` file.
 
         *line* is 1-indexed (matches LSP convention after +1 adjustment).
         *column* is 0-indexed.
@@ -318,7 +318,7 @@ def _map_to_virtual_line(
     pyx_line: int,
     virtual_line_numbers: tuple[int, ...],
 ) -> int | None:
-    """Map a 1-indexed .pyx line to a 1-indexed virtual Python line.
+    """Map a 1-indexed .pyxl line to a 1-indexed virtual Python line.
 
     Searches the line map for the first entry matching *pyx_line*.
     Returns ``None`` if no mapping exists.
@@ -330,7 +330,7 @@ def _map_to_virtual_line(
 
 
 def _get_jsx_line_text(document: PyxDocument, pyx_line: int) -> str | None:
-    """Get the text of a JSX line corresponding to a .pyx line number.
+    """Get the text of a JSX line corresponding to a .pyxl line number.
 
     Returns ``None`` if the line is not in the JSX section.
     """

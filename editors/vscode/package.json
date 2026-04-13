@@ -2,8 +2,8 @@
   "name": "pyxle-language-tools",
   "displayName": "Pyxle Language Tools",
   "publisher": "pyxle",
-  "version": "0.1.3",
-  "description": "Language support for Pyxle .pyx files — syntax highlighting, diagnostics, completions, hover, go-to-definition, and formatting.",
+  "version": "0.2.0",
+  "description": "Language support for Pyxle .pyxl files — syntax highlighting, diagnostics, completions, hover, go-to-definition, and formatting.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -13,11 +13,11 @@
     "url": "https://github.com/pyxle-framework/pyxle-langkit/issues"
   },
   "homepage": "https://pyxle.dev",
-  "keywords": ["pyxle", "pyx", "python", "react", "jsx", "lsp"],
+  "keywords": ["pyxle", "pyxl", "python", "react", "jsx", "lsp"],
   "engines": {
     "vscode": "^1.85.0"
   },
-  "icon": "icons/pyx.png",
+  "icon": "icons/pyxl.png",
   "categories": ["Programming Languages"],
   "activationEvents": ["onLanguage:pyxle"],
   "main": "./out/extension.js",
@@ -34,11 +34,11 @@
       {
         "id": "pyxle",
         "aliases": ["Pyxle", "pyxle"],
-        "extensions": [".pyx"],
+        "extensions": [".pyxl"],
         "configuration": "./language-configuration.json",
         "icon": {
-          "light": "./icons/pyx.svg",
-          "dark": "./icons/pyx.svg"
+          "light": "./icons/pyxl.svg",
+          "dark": "./icons/pyxl.svg"
         }
       }
     ],
@@ -46,7 +46,7 @@
       {
         "language": "pyxle",
         "scopeName": "source.pyxle",
-        "path": "./syntaxes/pyx.tmLanguage.json",
+        "path": "./syntaxes/pyxl.tmLanguage.json",
         "embeddedLanguages": {
           "source.python": "python",
           "source.js.jsx": "javascriptreact"
@@ -72,13 +72,13 @@
             "type": "string",
             "default": "ruff",
             "enum": ["ruff", "black", "none"],
-            "description": "Python formatter for .pyx files."
+            "description": "Python formatter for .pyxl files."
           },
           "pyxle.formatting.jsx": {
             "type": "string",
             "default": "prettier",
             "enum": ["prettier", "none"],
-            "description": "JSX formatter for .pyx files."
+            "description": "JSX formatter for .pyxl files."
           },
           "pyxle.diagnostics.pyflakes": {
             "type": "boolean",

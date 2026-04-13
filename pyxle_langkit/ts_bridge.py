@@ -2,7 +2,7 @@
 
 Manages a Node.js subprocess running the TypeScript language service
 worker (``ts_service.mjs``).  Provides completions, hover, and
-go-to-definition for JSX sections of ``.pyx`` files.
+go-to-definition for JSX sections of ``.pyxl`` files.
 
 Communication uses NDJSON over stdin/stdout — the same pattern as
 Pyxle's SSR worker pool.
@@ -156,30 +156,30 @@ class TypeScriptBridge:
 
     def update_file(
         self,
-        pyx_path: Path,
+        pyxl_path: Path,
         jsx_content: str,
         project_root: Path | None = None,
     ) -> None:
-        """Update the virtual TSX content for a .pyx file."""
+        """Update the virtual TSX content for a .pyxl file."""
         self._send("update", {
-            "file": str(pyx_path),
+            "file": str(pyxl_path),
             "content": jsx_content,
             "projectRoot": str(project_root) if project_root else None,
         })
 
-    def remove_file(self, pyx_path: Path) -> None:
-        """Remove the virtual TSX content for a .pyx file."""
-        self._send("remove", {"file": str(pyx_path)})
+    def remove_file(self, pyxl_path: Path) -> None:
+        """Remove the virtual TSX content for a .pyxl file."""
+        self._send("remove", {"file": str(pyxl_path)})
 
     def completions(
-        self, pyx_path: Path, line: int, character: int,
+        self, pyxl_path: Path, line: int, character: int,
     ) -> tuple[TsCompletionItem, ...]:
         """Get completions at a position in the JSX section.
 
         Line and character are 0-indexed.
         """
         result = self._send("completions", {
-            "file": str(pyx_path),
+            "file": str(pyxl_path),
             "line": line,
             "character": character,
         })
@@ -197,11 +197,11 @@ class TypeScriptBridge:
         )
 
     def quick_info(
-        self, pyx_path: Path, line: int, character: int,
+        self, pyxl_path: Path, line: int, character: int,
     ) -> TsQuickInfo | None:
         """Get hover information at a position in the JSX section."""
         result = self._send("quickInfo", {
-            "file": str(pyx_path),
+            "file": str(pyxl_path),
             "line": line,
             "character": character,
         })
@@ -215,11 +215,11 @@ class TypeScriptBridge:
         )
 
     def definition(
-        self, pyx_path: Path, line: int, character: int,
+        self, pyxl_path: Path, line: int, character: int,
     ) -> tuple[TsDefinitionLocation, ...]:
         """Get definition locations at a position in the JSX section."""
         result = self._send("definition", {
-            "file": str(pyx_path),
+            "file": str(pyxl_path),
             "line": line,
             "character": character,
         })

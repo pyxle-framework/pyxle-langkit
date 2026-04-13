@@ -1,7 +1,7 @@
 """Document and workspace symbol providers.
 
 Extracts structural symbols (loaders, actions, functions, classes,
-exports) from parsed ``.pyx`` documents and converts them to LSP
+exports) from parsed ``.pyxl`` documents and converts them to LSP
 ``DocumentSymbol`` objects.
 """
 
@@ -39,7 +39,7 @@ _LSP_KIND_MAP: dict[str, SymbolKind] = {
 
 @dataclass(frozen=True, slots=True)
 class DocumentSymbol:
-    """A structural symbol extracted from a ``.pyx`` document.
+    """A structural symbol extracted from a ``.pyxl`` document.
 
     Attributes
     ----------
@@ -49,7 +49,7 @@ class DocumentSymbol:
         One of ``"loader"``, ``"action"``, ``"function"``, ``"class"``,
         ``"default-export"``, ``"named-export"``.
     line:
-        1-indexed line number in the original ``.pyx`` file.
+        1-indexed line number in the original ``.pyxl`` file.
     detail:
         Optional human-readable detail string (e.g. ``"async loader"``).
     """
@@ -66,7 +66,7 @@ class DocumentSymbol:
 
 
 def extract_document_symbols(document: PyxDocument) -> tuple[DocumentSymbol, ...]:
-    """Extract symbols from a parsed ``.pyx`` document.
+    """Extract symbols from a parsed ``.pyxl`` document.
 
     Finds ``@server`` loaders, ``@action`` functions, top-level Python
     functions and classes, and JSX export patterns.

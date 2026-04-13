@@ -31,7 +31,7 @@ class TolerantParser:
         self._parser = PyxParser()
 
     def parse(self, path: Path) -> PyxDocument:
-        """Parse a ``.pyx`` file from disk.
+        """Parse a ``.pyxl`` file from disk.
 
         Reads the file and delegates to :meth:`parse_text`. If the file
         cannot be read, returns an empty document with a diagnostic.
@@ -51,7 +51,7 @@ class TolerantParser:
         return self.parse_text(text, path=path)
 
     def parse_text(self, text: str, path: Path | None = None) -> PyxDocument:
-        """Parse a ``.pyx`` source string.
+        """Parse a ``.pyxl`` source string.
 
         Never raises. Any exception from the underlying parser is caught
         and surfaced as a diagnostic on the returned document.

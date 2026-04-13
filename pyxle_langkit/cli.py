@@ -18,7 +18,7 @@ from .symbols import extract_document_symbols
 
 app = typer.Typer(
     name="pyxle-langkit",
-    help="Language tools for Pyxle .pyx files.",
+    help="Language tools for Pyxle .pyxl files.",
     no_args_is_help=True,
 )
 
@@ -30,9 +30,9 @@ app = typer.Typer(
 
 @app.command()
 def parse(
-    file: Path = typer.Argument(..., exists=True, help="Path to a .pyx file."),
+    file: Path = typer.Argument(..., exists=True, help="Path to a .pyxl file."),
 ) -> None:
-    """Parse a .pyx file and output its structure as JSON."""
+    """Parse a .pyxl file and output its structure as JSON."""
     parser = TolerantParser()
     document = parser.parse(file)
 
@@ -84,9 +84,9 @@ def parse(
 
 @app.command()
 def lint(
-    file: Path = typer.Argument(..., exists=True, help="Path to a .pyx file."),
+    file: Path = typer.Argument(..., exists=True, help="Path to a .pyxl file."),
 ) -> None:
-    """Lint a .pyx file and print diagnostics."""
+    """Lint a .pyxl file and print diagnostics."""
     parser = TolerantParser()
     document = parser.parse(file)
     linter = PyxLinter()
@@ -139,9 +139,9 @@ def lint(
 
 @app.command()
 def outline(
-    file: Path = typer.Argument(..., exists=True, help="Path to a .pyx file."),
+    file: Path = typer.Argument(..., exists=True, help="Path to a .pyxl file."),
 ) -> None:
-    """Show the symbol outline of a .pyx file."""
+    """Show the symbol outline of a .pyxl file."""
     parser = TolerantParser()
     document = parser.parse(file)
     symbols = extract_document_symbols(document)
@@ -162,12 +162,12 @@ def outline(
 
 @app.command(name="format")
 def format_cmd(
-    file: Path = typer.Argument(..., exists=True, help="Path to a .pyx file."),
+    file: Path = typer.Argument(..., exists=True, help="Path to a .pyxl file."),
     python_formatter: str = typer.Option("ruff", help="Python formatter: ruff, black, none."),
     jsx_formatter: str = typer.Option("prettier", help="JSX formatter: prettier, none."),
     check: bool = typer.Option(False, "--check", help="Check if file would be changed."),
 ) -> None:
-    """Format a .pyx file."""
+    """Format a .pyxl file."""
     from .formatting import format_document
 
     text = file.read_text(encoding="utf-8")

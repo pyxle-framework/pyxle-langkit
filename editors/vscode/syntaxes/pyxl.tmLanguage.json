@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "scopeName": "source.pyxle",
   "name": "Pyxle",
-  "comment": "Pyxle .pyx files: Python server code on top, JSX client code below. Uses begin/end so the embedded grammars' string handling (template literals, triple-quoted strings) takes priority over block switching. Only UNAMBIGUOUS patterns trigger a switch — keywords shared by both languages (return, if, for, while, try) never change the block.",
+  "comment": "Pyxle .pyxl files: Python server code on top, JSX client code below. Uses begin/end so the embedded grammars' string handling (template literals, triple-quoted strings) takes priority over block switching. Only UNAMBIGUOUS patterns trigger a switch — keywords shared by both languages (return, if, for, while, try) never change the block.",
   "patterns": [
     { "include": "#python-block" },
     { "include": "#jsx-block" }

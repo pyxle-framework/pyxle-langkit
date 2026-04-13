@@ -1,8 +1,8 @@
-"""AST-based semantic token provider for ``.pyx`` files.
+"""AST-based semantic token provider for ``.pyxl`` files.
 
 Walks the Python AST to produce semantic tokens for decorators,
 functions, parameters, classes, and built-in references, mapping all
-positions back to original ``.pyx`` line numbers.
+positions back to original ``.pyxl`` line numbers.
 """
 
 from __future__ import annotations
@@ -74,7 +74,7 @@ class SemanticToken:
     Attributes
     ----------
     line:
-        0-indexed line in the original ``.pyx`` file.
+        0-indexed line in the original ``.pyxl`` file.
     start_char:
         0-indexed character offset on the line.
     length:
@@ -113,11 +113,11 @@ def _modifier_bits(*names: str) -> int:
 
 
 def extract_semantic_tokens(document: PyxDocument) -> tuple[SemanticToken, ...]:
-    """Extract semantic tokens from the Python section of a ``.pyx`` document.
+    """Extract semantic tokens from the Python section of a ``.pyxl`` document.
 
     Walks the Python AST to find decorators, function definitions,
     parameters, class definitions, built-in calls, and constants. All
-    positions are mapped back to original ``.pyx`` line numbers.
+    positions are mapped back to original ``.pyxl`` line numbers.
     """
     if not document.has_python:
         return ()

@@ -1,4 +1,4 @@
-"""Go-to-definition provider for ``.pyx`` files.
+"""Go-to-definition provider for ``.pyxl`` files.
 
 Combines Jedi-based Python definitions with cross-section navigation
 (e.g. ``data.key`` in JSX to the loader return dict in Python).
@@ -63,7 +63,7 @@ _DATA_KEY_RE = re.compile(r"\bdata\.(\w+)")
 
 
 class DefinitionProvider:
-    """Provides go-to-definition for ``.pyx`` files."""
+    """Provides go-to-definition for ``.pyxl`` files."""
 
     def goto_definition(
         self,
@@ -131,7 +131,7 @@ class DefinitionProvider:
                 continue
 
             # If the definition is within the virtual file, map back
-            # to the original .pyx position.
+            # to the original .pyxl position.
             if document.path is not None and defn_path == document.path:
                 pyx_line = _map_from_virtual_line(defn_line, line_numbers)
                 if pyx_line is not None:
@@ -245,7 +245,7 @@ def _map_to_virtual_line(
     pyx_line: int,
     virtual_line_numbers: tuple[int, ...],
 ) -> int | None:
-    """Map a 1-indexed .pyx line to a 1-indexed virtual Python line."""
+    """Map a 1-indexed .pyxl line to a 1-indexed virtual Python line."""
     for virtual_idx, orig_line in enumerate(virtual_line_numbers):
         if orig_line == pyx_line:
             return virtual_idx + 1
@@ -256,7 +256,7 @@ def _map_from_virtual_line(
     virtual_line: int,
     virtual_line_numbers: tuple[int, ...],
 ) -> int | None:
-    """Map a 1-indexed virtual Python line back to the original .pyx line."""
+    """Map a 1-indexed virtual Python line back to the original .pyxl line."""
     index = virtual_line - 1
     if 0 <= index < len(virtual_line_numbers):
         mapped = virtual_line_numbers[index]
@@ -265,7 +265,7 @@ def _map_from_virtual_line(
 
 
 def _get_jsx_line_text(document: PyxDocument, pyx_line: int) -> str | None:
-    """Get the text of a JSX line corresponding to a .pyx line number."""
+    """Get the text of a JSX line corresponding to a .pyxl line number."""
     jsx_lines = document.jsx_code.splitlines()
     for jsx_idx, orig_line in enumerate(document.jsx_line_numbers):
         if orig_line == pyx_line and jsx_idx < len(jsx_lines):

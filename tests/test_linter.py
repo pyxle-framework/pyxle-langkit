@@ -19,7 +19,7 @@ from pyxle_langkit.react_checker import (
 
 
 def _make_doc(text: str) -> PyxDocument:
-    """Parse a .pyx string through TolerantParser."""
+    """Parse a .pyxl string through TolerantParser."""
     return TolerantParser().parse_text(text)
 
 
@@ -69,7 +69,7 @@ def _build_doc(
 
 
 class TestLintCleanFile:
-    """A well-formed .pyx file should produce no lint issues."""
+    """A well-formed .pyxl file should produce no lint issues."""
 
     def test_no_issues(self) -> None:
         text = dedent("""\

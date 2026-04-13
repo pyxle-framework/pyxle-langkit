@@ -1,4 +1,4 @@
-"""Format coordinator for ``.pyx`` files.
+"""Format coordinator for ``.pyxl`` files.
 
 Formats Python and JSX sections independently using ``ruff format``
 and ``prettier``, then maps edits back to original line positions.
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True, slots=True)
 class TextEdit:
-    """A text replacement in the original ``.pyx`` file.
+    """A text replacement in the original ``.pyxl`` file.
 
     Attributes
     ----------
@@ -48,7 +48,7 @@ def _find_sections(
     text: str,
     path: Path | None = None,
 ) -> tuple[tuple[str, tuple[int, ...]], tuple[str, tuple[int, ...]]]:
-    """Split a .pyx file into Python and JSX sections with line maps.
+    """Split a .pyxl file into Python and JSX sections with line maps.
 
     Returns ``((python_code, python_line_numbers), (jsx_code, jsx_line_numbers))``.
     Delegates to the core compiler parser which correctly tracks JavaScript
@@ -179,7 +179,7 @@ async def format_document(
     python_formatter: str = "ruff",
     jsx_formatter: str = "prettier",
 ) -> tuple[TextEdit, ...]:
-    """Format a ``.pyx`` file by formatting each section independently.
+    """Format a ``.pyxl`` file by formatting each section independently.
 
     Returns a tuple of ``TextEdit`` objects that, when applied in order,
     transform the original text into the formatted version.

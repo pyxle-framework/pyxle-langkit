@@ -15,25 +15,25 @@ from pyxle_langkit.parser_adapter import TolerantParser
 class TestParseTextValid:
     """TolerantParser.parse_text on valid input returns a usable PyxDocument."""
 
-    def test_returns_pyx_document(self, sample_pyx_text: str) -> None:
+    def test_returns_pyx_document(self, sample_pyxl_text: str) -> None:
         parser = TolerantParser()
-        doc = parser.parse_text(sample_pyx_text)
+        doc = parser.parse_text(sample_pyxl_text)
         assert isinstance(doc, PyxDocument)
 
-    def test_has_python_and_jsx(self, sample_pyx_text: str) -> None:
+    def test_has_python_and_jsx(self, sample_pyxl_text: str) -> None:
         parser = TolerantParser()
-        doc = parser.parse_text(sample_pyx_text)
+        doc = parser.parse_text(sample_pyxl_text)
         assert doc.has_python
         assert doc.has_jsx
 
-    def test_python_code_contains_loader(self, sample_pyx_text: str) -> None:
+    def test_python_code_contains_loader(self, sample_pyxl_text: str) -> None:
         parser = TolerantParser()
-        doc = parser.parse_text(sample_pyx_text)
+        doc = parser.parse_text(sample_pyxl_text)
         assert "async def loader" in doc.python_code
 
-    def test_jsx_code_contains_export(self, sample_pyx_text: str) -> None:
+    def test_jsx_code_contains_export(self, sample_pyxl_text: str) -> None:
         parser = TolerantParser()
-        doc = parser.parse_text(sample_pyx_text)
+        doc = parser.parse_text(sample_pyxl_text)
         assert "export default" in doc.jsx_code
 
     def test_no_diagnostics_on_valid_python_only(self, python_only_text: str) -> None:
@@ -42,20 +42,20 @@ class TestParseTextValid:
         assert doc.diagnostics == ()
 
     def test_separator_produces_expected_diagnostic(
-        self, sample_pyx_text: str
+        self, sample_pyxl_text: str
     ) -> None:
         # The --- separator line is not valid Python, so the tolerant parser
         # records it as a diagnostic. This is expected behavior.
         parser = TolerantParser()
-        doc = parser.parse_text(sample_pyx_text)
+        doc = parser.parse_text(sample_pyxl_text)
         separator_diags = [
             d for d in doc.diagnostics if "invalid syntax" in d.message
         ]
         assert len(separator_diags) >= 1
 
-    def test_loader_metadata_extracted(self, sample_pyx_text: str) -> None:
+    def test_loader_metadata_extracted(self, sample_pyxl_text: str) -> None:
         parser = TolerantParser()
-        doc = parser.parse_text(sample_pyx_text)
+        doc = parser.parse_text(sample_pyxl_text)
         assert doc.loader is not None
         assert doc.loader.name == "loader"
         assert doc.loader.is_async is True
@@ -106,18 +106,18 @@ class TestParseTextEmpty:
 class TestParseFile:
     """TolerantParser.parse reads from disk."""
 
-    def test_parse_file_works(self, tmp_path: Path, sample_pyx_text: str) -> None:
-        pyx_file = tmp_path / "page.pyx"
-        pyx_file.write_text(sample_pyx_text, encoding="utf-8")
+    def test_parse_file_works(self, tmp_path: Path, sample_pyxl_text: str) -> None:
+        pyxl_file = tmp_path / "page.pyxl"
+        pyxl_file.write_text(sample_pyxl_text, encoding="utf-8")
 
         parser = TolerantParser()
-        doc = parser.parse(pyx_file)
+        doc = parser.parse(pyxl_file)
         assert isinstance(doc, PyxDocument)
-        assert doc.path == pyx_file
+        assert doc.path == pyxl_file
         assert doc.has_python
 
     def test_parse_file_not_found(self, tmp_path: Path) -> None:
-        missing = tmp_path / "nonexistent.pyx"
+        missing = tmp_path / "nonexistent.pyxl"
         parser = TolerantParser()
         doc = parser.parse(missing)
         assert isinstance(doc, PyxDocument)
@@ -125,7 +125,7 @@ class TestParseFile:
         assert "Cannot read file" in doc.diagnostics[0].message
 
     def test_parse_file_not_found_no_raise(self, tmp_path: Path) -> None:
-        missing = tmp_path / "nonexistent.pyx"
+        missing = tmp_path / "nonexistent.pyxl"
         parser = TolerantParser()
         doc = parser.parse(missing)
         assert doc is not None
@@ -209,7 +209,7 @@ class TestParseTextPath:
 
     def test_path_argument_stored(self, tmp_path: Path) -> None:
         parser = TolerantParser()
-        p = tmp_path / "test.pyx"
+        p = tmp_path / "test.pyxl"
         doc = parser.parse_text("x = 1", path=p)
         assert doc.path == p
 

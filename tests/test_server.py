@@ -85,7 +85,7 @@ def test_get_document_caches():
     from pyxle_langkit.server import _get_document
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     mock_ws = _mock_workspace()
 
@@ -105,7 +105,7 @@ def test_get_document_returns_none_for_missing():
     from pyxle_langkit.server import _get_document
 
     server = PyxleLanguageServer()
-    uri = "file:///nonexistent.pyx"
+    uri = "file:///nonexistent.pyxl"
 
     mock_ws = _mock_workspace(raise_on_get=True)
 
@@ -124,7 +124,7 @@ def test_publish_diagnostics():
     from pyxle_langkit.server import _publish_diagnostics
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     mock_ws = _mock_workspace()
 
@@ -145,7 +145,7 @@ def test_publish_diagnostics_caches_document():
     from pyxle_langkit.server import _publish_diagnostics
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     mock_ws = _mock_workspace()
 
@@ -165,7 +165,7 @@ def test_publish_diagnostics_missing_document():
     from pyxle_langkit.server import _publish_diagnostics
 
     server = PyxleLanguageServer()
-    uri = "file:///nonexistent.pyx"
+    uri = "file:///nonexistent.pyxl"
 
     mock_ws = _mock_workspace(raise_on_get=True)
 
@@ -187,11 +187,11 @@ def test_segments_request():
     from pyxle_langkit.server import _on_segments
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     # Pre-populate the document cache.
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     params = {"uri": uri}
@@ -227,7 +227,7 @@ def test_segments_request_missing_document():
     mock_ws = _mock_workspace(raise_on_get=True)
 
     with patch.object(LanguageServer, "workspace", new_callable=PropertyMock, return_value=mock_ws):
-        result = _on_segments(server, {"uri": "file:///missing.pyx"})
+        result = _on_segments(server, {"uri": "file:///missing.pyxl"})
     assert result is None
 
 
@@ -238,20 +238,20 @@ def test_segments_request_missing_document():
 
 def test_uri_to_path():
     """_uri_to_path converts file:// URIs to Path objects."""
-    path = _uri_to_path("file:///Users/test/page.pyx")
-    assert path == Path("/Users/test/page.pyx")
+    path = _uri_to_path("file:///Users/test/page.pyxl")
+    assert path == Path("/Users/test/page.pyxl")
 
 
 def test_uri_to_path_non_file():
     """_uri_to_path returns None for non-file URIs."""
-    path = _uri_to_path("https://example.com/page.pyx")
+    path = _uri_to_path("https://example.com/page.pyxl")
     assert path is None
 
 
 def test_path_to_uri():
     """_path_to_uri converts Path to file:// URI."""
-    uri = _path_to_uri(Path("/Users/test/page.pyx"))
-    assert uri == "file:///Users/test/page.pyx"
+    uri = _path_to_uri(Path("/Users/test/page.pyxl"))
+    assert uri == "file:///Users/test/page.pyxl"
 
 
 # ------------------------------------------------------------------
@@ -261,13 +261,13 @@ def test_path_to_uri():
 
 def test_extract_uri_from_dict():
     """_extract_uri extracts URI from a dict."""
-    assert _extract_uri({"uri": "file:///test.pyx"}) == "file:///test.pyx"
+    assert _extract_uri({"uri": "file:///test.pyxl"}) == "file:///test.pyxl"
 
 
 def test_extract_uri_from_object():
     """_extract_uri extracts URI from an object with uri attribute."""
-    params = SimpleNamespace(uri="file:///test.pyx")
-    assert _extract_uri(params) == "file:///test.pyx"
+    params = SimpleNamespace(uri="file:///test.pyxl")
+    assert _extract_uri(params) == "file:///test.pyxl"
 
 
 def test_extract_uri_from_none():
@@ -291,7 +291,7 @@ def test_did_close_clears_document():
     from pyxle_langkit.server import _on_did_close
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     # Pre-populate cache.
     parser = TolerantParser()
@@ -318,7 +318,7 @@ def test_publish_diagnostics_linter_failure():
     from pyxle_langkit.server import _publish_diagnostics
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     mock_ws = _mock_workspace()
 
@@ -344,7 +344,7 @@ def test_publish_diagnostics_updates_workspace_index():
     from pyxle_langkit.server import _publish_diagnostics
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     mock_ws = _mock_workspace()
     server._workspace_index = MagicMock()
@@ -368,11 +368,11 @@ def test_on_completion_returns_items():
     from pyxle_langkit.server import _on_completion
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     # Pre-populate cache with a document.
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     params = MagicMock()
@@ -395,7 +395,7 @@ def test_on_completion_no_document():
     mock_ws = _mock_workspace(raise_on_get=True)
 
     params = MagicMock()
-    params.text_document.uri = "file:///missing.pyx"
+    params.text_document.uri = "file:///missing.pyxl"
     params.position.line = 0
     params.position.character = 0
 
@@ -415,10 +415,10 @@ def test_on_hover_returns_content():
     from pyxle_langkit.server import _on_hover
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     params = MagicMock()
@@ -441,7 +441,7 @@ def test_on_hover_returns_none():
     mock_ws = _mock_workspace(raise_on_get=True)
 
     params = MagicMock()
-    params.text_document.uri = "file:///missing.pyx"
+    params.text_document.uri = "file:///missing.pyxl"
     params.position.line = 0
     params.position.character = 0
 
@@ -456,10 +456,10 @@ def test_on_hover_no_content():
     from pyxle_langkit.server import _on_hover
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     params = MagicMock()
@@ -482,12 +482,12 @@ def test_on_definition_cross_section(tmp_path):
     from pyxle_langkit.server import _on_definition
 
     server = PyxleLanguageServer()
-    pyx_file = tmp_path / "page.pyx"
-    pyx_file.write_text(SAMPLE)
-    uri = f"file://{pyx_file}"
+    pyxl_file = tmp_path / "page.pyxl"
+    pyxl_file.write_text(SAMPLE)
+    uri = f"file://{pyxl_file}"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=pyx_file)
+    doc = parser.parse_text(SAMPLE, path=pyxl_file)
     server._documents[uri] = doc
 
     params = MagicMock()
@@ -511,7 +511,7 @@ def test_on_definition_no_document():
     mock_ws = _mock_workspace(raise_on_get=True)
 
     params = MagicMock()
-    params.text_document.uri = "file:///missing.pyx"
+    params.text_document.uri = "file:///missing.pyxl"
     params.position.line = 0
     params.position.character = 0
 
@@ -526,10 +526,10 @@ def test_on_definition_no_results():
     from pyxle_langkit.server import _on_definition
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     params = MagicMock()
@@ -552,10 +552,10 @@ def test_on_document_symbol():
     from pyxle_langkit.server import _on_document_symbol
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     params = MagicMock()
@@ -574,7 +574,7 @@ def test_on_document_symbol_no_document():
     mock_ws = _mock_workspace(raise_on_get=True)
 
     params = MagicMock()
-    params.text_document.uri = "file:///missing.pyx"
+    params.text_document.uri = "file:///missing.pyxl"
 
     with patch.object(LanguageServer, "workspace", new_callable=PropertyMock, return_value=mock_ws):
         result = _on_document_symbol(server, params)
@@ -609,7 +609,7 @@ def test_on_workspace_symbol_with_results():
 
     mock_symbol = MagicMock()
     mock_symbol.name = "load_data"
-    mock_symbol.path = Path("/test/page.pyx")
+    mock_symbol.path = Path("/test/page.pyxl")
     mock_symbol.line = 4
     mock_symbol.kind = "loader"
 
@@ -634,10 +634,10 @@ def test_on_semantic_tokens():
     from pyxle_langkit.server import _on_semantic_tokens
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     params = MagicMock()
@@ -661,7 +661,7 @@ def test_on_semantic_tokens_no_document():
     mock_ws = _mock_workspace(raise_on_get=True)
 
     params = MagicMock()
-    params.text_document.uri = "file:///missing.pyx"
+    params.text_document.uri = "file:///missing.pyxl"
 
     with patch.object(LanguageServer, "workspace", new_callable=PropertyMock, return_value=mock_ws):
         result = _on_semantic_tokens(server, params)
@@ -674,7 +674,7 @@ def test_on_semantic_tokens_no_tokens():
     from pyxle_langkit.server import _on_semantic_tokens
 
     server = PyxleLanguageServer()
-    uri = "file:///test/jsx-only.pyx"
+    uri = "file:///test/jsx-only.pyxl"
 
     parser = TolerantParser()
     doc = parser.parse_text("export default function Page() { return <div/>; }")
@@ -700,7 +700,7 @@ def test_on_did_open():
     mock_ws = _mock_workspace()
 
     params = MagicMock()
-    params.text_document.uri = "file:///test/page.pyx"
+    params.text_document.uri = "file:///test/page.pyxl"
 
     with (
         patch.object(LanguageServer, "workspace", new_callable=PropertyMock, return_value=mock_ws),
@@ -718,7 +718,7 @@ def test_on_did_change():
     mock_ws = _mock_workspace()
 
     params = MagicMock()
-    params.text_document.uri = "file:///test/page.pyx"
+    params.text_document.uri = "file:///test/page.pyxl"
 
     with (
         patch.object(LanguageServer, "workspace", new_callable=PropertyMock, return_value=mock_ws),
@@ -736,7 +736,7 @@ def test_on_did_save():
     mock_ws = _mock_workspace()
 
     params = MagicMock()
-    params.text_document.uri = "file:///test/page.pyx"
+    params.text_document.uri = "file:///test/page.pyxl"
 
     with (
         patch.object(LanguageServer, "workspace", new_callable=PropertyMock, return_value=mock_ws),
@@ -761,7 +761,7 @@ def test_on_formatting():
     mock_ws = _mock_workspace()
 
     params = MagicMock()
-    params.text_document.uri = "file:///test/page.pyx"
+    params.text_document.uri = "file:///test/page.pyxl"
 
     with (
         patch.object(LanguageServer, "workspace", new_callable=PropertyMock, return_value=mock_ws),
@@ -783,7 +783,7 @@ def test_on_formatting_no_document():
     mock_ws = _mock_workspace(raise_on_get=True)
 
     params = MagicMock()
-    params.text_document.uri = "file:///missing.pyx"
+    params.text_document.uri = "file:///missing.pyxl"
 
     with patch.object(LanguageServer, "workspace", new_callable=PropertyMock, return_value=mock_ws):
         result = asyncio.run(_on_formatting(server, params))
@@ -807,7 +807,7 @@ def test_on_formatting_with_edits():
     mock_ws = _mock_workspace()
 
     params = MagicMock()
-    params.text_document.uri = "file:///test/page.pyx"
+    params.text_document.uri = "file:///test/page.pyxl"
 
     mock_edits = [
         TextEdit(start_line=1, end_line=2, new_text="formatted line"),
@@ -838,10 +838,10 @@ def test_on_completion_returns_completion_list_type():
     from pyxle_langkit.server import _on_completion
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     params = MagicMock()
@@ -867,10 +867,10 @@ def test_on_hover_returns_hover_type():
     from pyxle_langkit.server import _on_hover
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     # Mock the hover provider to return a known string.
@@ -901,15 +901,15 @@ def test_on_definition_returns_location_list():
     from pyxle_langkit.server import _on_definition
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     # Mock the definitions provider to return a known result.
     mock_defn = MagicMock()
-    mock_defn.path = Path("/test/page.pyx")
+    mock_defn.path = Path("/test/page.pyxl")
     mock_defn.line = 5
     mock_defn.column = 0
     server._definitions = MagicMock()
@@ -932,10 +932,10 @@ def test_on_definition_empty_result():
     from pyxle_langkit.server import _on_definition
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     server._definitions = MagicMock()
@@ -960,10 +960,10 @@ def test_on_document_symbol_has_symbols():
     from pyxle_langkit.server import _on_document_symbol
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     params = MagicMock()
@@ -1001,7 +1001,7 @@ def test_on_workspace_symbol_kind_mapping():
     for kind_str, expected_lsp_kind in kinds_to_test:
         mock_symbol = MagicMock()
         mock_symbol.name = "test_symbol"
-        mock_symbol.path = Path("/test/page.pyx")
+        mock_symbol.path = Path("/test/page.pyxl")
         mock_symbol.line = 1
         mock_symbol.kind = kind_str
 
@@ -1026,10 +1026,10 @@ def test_on_semantic_tokens_data_encoding():
     from pyxle_langkit.server import _on_semantic_tokens
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     params = MagicMock()
@@ -1050,10 +1050,10 @@ def test_on_semantic_tokens_with_mock():
     from pyxle_langkit.server import _on_semantic_tokens
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     mock_token = MagicMock()
@@ -1089,7 +1089,7 @@ def test_segments_request_python_only():
     from pyxle_langkit.server import _on_segments
 
     server = PyxleLanguageServer()
-    uri = "file:///test/python-only.pyx"
+    uri = "file:///test/python-only.pyxl"
 
     python_only = dedent("""\
         @server
@@ -1098,7 +1098,7 @@ def test_segments_request_python_only():
     """).strip()
 
     parser = TolerantParser()
-    doc = parser.parse_text(python_only, path=Path("/test/python-only.pyx"))
+    doc = parser.parse_text(python_only, path=Path("/test/python-only.pyxl"))
     server._documents[uri] = doc
 
     result = _on_segments(server, {"uri": uri})
@@ -1113,10 +1113,10 @@ def test_segments_request_with_object_params():
     from pyxle_langkit.server import _on_segments
 
     server = PyxleLanguageServer()
-    uri = "file:///test/page.pyx"
+    uri = "file:///test/page.pyxl"
 
     parser = TolerantParser()
-    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyx"))
+    doc = parser.parse_text(SAMPLE, path=Path("/test/page.pyxl"))
     server._documents[uri] = doc
 
     params = SimpleNamespace(uri=uri)
@@ -1136,7 +1136,7 @@ def test_did_close_nonexistent_document():
     from pyxle_langkit.server import _on_did_close
 
     server = PyxleLanguageServer()
-    uri = "file:///nonexistent.pyx"
+    uri = "file:///nonexistent.pyxl"
 
     params = MagicMock()
     params.text_document.uri = uri

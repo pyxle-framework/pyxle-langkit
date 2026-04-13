@@ -1,5 +1,5 @@
 /**
- * TypeScript Language Service worker for Pyxle .pyx files.
+ * TypeScript Language Service worker for Pyxle .pyxl files.
  *
  * Communicates with the Python LSP server via NDJSON over stdin/stdout.
  * Provides completions, hover (quickInfo), and go-to-definition for
@@ -7,11 +7,11 @@
  *
  * Protocol (one JSON object per line):
  *
- *   Request:  {"id": 1, "method": "update", "params": {"file": "/abs/path.pyx", "content": "...", "projectRoot": "/abs/root"}}
- *   Request:  {"id": 2, "method": "completions", "params": {"file": "/abs/path.pyx", "line": 10, "character": 5}}
- *   Request:  {"id": 3, "method": "quickInfo", "params": {"file": "/abs/path.pyx", "line": 10, "character": 5}}
- *   Request:  {"id": 4, "method": "definition", "params": {"file": "/abs/path.pyx", "line": 10, "character": 5}}
- *   Request:  {"id": 5, "method": "remove", "params": {"file": "/abs/path.pyx"}}
+ *   Request:  {"id": 1, "method": "update", "params": {"file": "/abs/path.pyxl", "content": "...", "projectRoot": "/abs/root"}}
+ *   Request:  {"id": 2, "method": "completions", "params": {"file": "/abs/path.pyxl", "line": 10, "character": 5}}
+ *   Request:  {"id": 3, "method": "quickInfo", "params": {"file": "/abs/path.pyxl", "line": 10, "character": 5}}
+ *   Request:  {"id": 4, "method": "definition", "params": {"file": "/abs/path.pyxl", "line": 10, "character": 5}}
+ *   Request:  {"id": 5, "method": "remove", "params": {"file": "/abs/path.pyxl"}}
  *   Response: {"id": 1, "result": ...}
  *   Response: {"id": 2, "error": "message"}
  */
@@ -30,9 +30,9 @@ const ts = require('typescript');
 // Virtual file store
 // ---------------------------------------------------------------------------
 
-/** Map from real .pyx path → virtual .tsx content */
+/** Map from real .pyxl path → virtual .tsx content */
 const virtualFiles = new Map();
-/** Map from real .pyx path → version counter */
+/** Map from real .pyxl path → version counter */
 const fileVersions = new Map();
 /** Project root (set on first `update` call) */
 let projectRoot = process.cwd();
@@ -44,8 +44,8 @@ function toVirtualPath(pyxPath) {
 }
 
 function fromVirtualPath(tsxPath) {
-    if (tsxPath.endsWith('.pyx.tsx')) {
-        return tsxPath.slice(0, -4); // Remove .tsx → .pyx
+    if (tsxPath.endsWith('.pyxl.tsx')) {
+        return tsxPath.slice(0, -4); // Remove .tsx → .pyxl
     }
     return tsxPath;
 }
@@ -141,20 +141,20 @@ const serviceHost = {
     resolveModuleNames: (moduleNames, containingFile) => {
         const options = getCompilerOptions();
         return moduleNames.map(name => {
-            // For relative imports from a .pyx.tsx file, resolve relative
-            // to the original .pyx file's directory (not the virtual path).
+            // For relative imports from a .pyxl.tsx file, resolve relative
+            // to the original .pyxl file's directory (not the virtual path).
             const resolveDir = dirname(fromVirtualPath(containingFile));
 
             const resolved = ts.resolveModuleName(name, containingFile, options, {
                 ...ts.sys,
                 fileExists: (f) => {
-                    const pyx = fromVirtualPath(f);
-                    if (virtualFiles.has(pyx)) return true;
+                    const pyxl = fromVirtualPath(f);
+                    if (virtualFiles.has(pyxl)) return true;
                     return ts.sys.fileExists(f);
                 },
                 readFile: (f) => {
-                    const pyx = fromVirtualPath(f);
-                    if (virtualFiles.has(pyx)) return virtualFiles.get(pyx);
+                    const pyxl = fromVirtualPath(f);
+                    if (virtualFiles.has(pyxl)) return virtualFiles.get(pyxl);
                     return ts.sys.readFile(f);
                 },
             });

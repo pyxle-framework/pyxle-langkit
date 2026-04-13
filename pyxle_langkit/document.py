@@ -1,4 +1,4 @@
-"""Parsed document model for .pyx files.
+"""Parsed document model for .pyxl files.
 
 Wraps the raw ``PyxParseResult`` from the core compiler into a richer,
 IDE-oriented model with line mapping, section detection, and Jedi-ready
@@ -28,7 +28,7 @@ _REQUEST_ANNOTATION_RE = re.compile(
 
 @dataclass(frozen=True, slots=True)
 class PyxDocument:
-    """Immutable representation of a parsed ``.pyx`` file.
+    """Immutable representation of a parsed ``.pyxl`` file.
 
     Contains all metadata extracted by the compiler parser, plus helper
     methods for line mapping and IDE integration.
@@ -54,7 +54,7 @@ class PyxDocument:
     # ------------------------------------------------------------------
 
     def map_python_line(self, virtual_line: int) -> int | None:
-        """Map a 1-indexed virtual Python line to the original .pyx line.
+        """Map a 1-indexed virtual Python line to the original .pyxl line.
 
         Returns ``None`` if *virtual_line* is out of range.
         """
@@ -66,7 +66,7 @@ class PyxDocument:
         return self.python_line_numbers[index]
 
     def map_jsx_line(self, virtual_line: int) -> int | None:
-        """Map a 1-indexed virtual JSX line to the original .pyx line.
+        """Map a 1-indexed virtual JSX line to the original .pyxl line.
 
         Returns ``None`` if *virtual_line* is out of range.
         """
@@ -82,7 +82,7 @@ class PyxDocument:
     # ------------------------------------------------------------------
 
     def section_at_line(self, original_line: int) -> Literal["python", "jsx", "unknown"]:
-        """Determine which section a 1-indexed original .pyx line belongs to.
+        """Determine which section a 1-indexed original .pyxl line belongs to.
 
         Returns ``"python"`` if the line appears in the Python line map,
         ``"jsx"`` if it appears in the JSX line map, or ``"unknown"``
@@ -107,7 +107,7 @@ class PyxDocument:
         parameters with ``: Request`` type hints.
 
         Returns a tuple of (code, line_numbers) where *line_numbers*
-        maps each virtual line to an original .pyx line number. Injected
+        maps each virtual line to an original .pyxl line number. Injected
         lines use ``0`` as their line number.
         """
         code = self.python_code

@@ -77,7 +77,7 @@ def test_jsx_completions_pyxle_components():
     provider = CompletionProvider()
 
     # In the JSX section, simulate typing "<" at the start of a new line.
-    # The JSX section starts at line 7 in the original .pyx source.
+    # The JSX section starts at line 7 in the original .pyxl source.
     # We need a line in the JSX section that has "<" at the cursor.
     jsx_with_tag = dedent("""\
         from starlette.requests import Request
@@ -399,11 +399,11 @@ def test_python_completions_jedi_exception():
 
 
 def test_map_to_virtual_line():
-    """_map_to_virtual_line maps pyx line to virtual line."""
+    """_map_to_virtual_line maps pyxl line to virtual line."""
     from pyxle_langkit.completions import _map_to_virtual_line
 
     line_numbers = (0, 1, 2, 3)
-    assert _map_to_virtual_line(1, line_numbers) == 2  # pyx line 1 at index 1
+    assert _map_to_virtual_line(1, line_numbers) == 2  # pyxl line 1 at index 1
     assert _map_to_virtual_line(999, line_numbers) is None
 
 

@@ -1,4 +1,4 @@
-"""Language Server Protocol (LSP) server for Pyxle ``.pyx`` files.
+"""Language Server Protocol (LSP) server for Pyxle ``.pyxl`` files.
 
 All language intelligence is provided here — the VS Code extension is a
 thin client that just connects to this server.  Features include
@@ -321,7 +321,7 @@ def _on_definition(
             )
             for ts_def in ts_defs:
                 def_path = Path(ts_def.file)
-                # If the definition points to a .pyx file, use the .pyx URI.
+                # If the definition points to a .pyxl file, use the .pyxl URI.
                 # If it points to a .js/.jsx/.ts file, use that directly.
                 uri = _path_to_uri(def_path)
                 pos = Position(line=ts_def.line, character=ts_def.character)
@@ -535,7 +535,7 @@ def _update_ts_bridge(
 
     The virtual document preserves line alignment: Python lines become
     empty lines so that JSX line N in the virtual file corresponds to
-    line N in the original ``.pyx`` file.  This eliminates the need
+    line N in the original ``.pyxl`` file.  This eliminates the need
     for position mapping — positions pass through as-is.
     """
     jsx_lines = document.jsx_code.splitlines()
@@ -548,7 +548,7 @@ def _update_ts_bridge(
     all_line_numbers = list(document.python_line_numbers) + list(jsx_line_numbers)
     total_lines = max(all_line_numbers) if all_line_numbers else 0
 
-    # Build padded content where each line maps to the original .pyx line.
+    # Build padded content where each line maps to the original .pyxl line.
     virtual_lines: list[str] = [""] * total_lines
     for i, jsx_line in enumerate(jsx_lines):
         if i < len(jsx_line_numbers):

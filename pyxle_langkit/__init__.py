@@ -1,6 +1,6 @@
 """Pyxle language toolkit: LSP server, linter, and editor integrations.
 
-Public API for consumers that need to parse, analyze, or index ``.pyx``
+Public API for consumers that need to parse, analyze, or index ``.pyxl``
 files programmatically.
 """
 

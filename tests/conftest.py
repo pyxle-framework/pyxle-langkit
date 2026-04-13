@@ -17,8 +17,8 @@ from pyxle_langkit.parser_adapter import TolerantParser
 
 
 @pytest.fixture()
-def sample_pyx_text() -> str:
-    """A basic .pyx file with both Python and JSX sections."""
+def sample_pyxl_text() -> str:
+    """A basic .pyxl file with both Python and JSX sections."""
     return dedent("""\
         from datetime import datetime
 
@@ -37,7 +37,7 @@ def sample_pyx_text() -> str:
 
 @pytest.fixture()
 def python_only_text() -> str:
-    """A .pyx file containing only Python code."""
+    """A .pyxl file containing only Python code."""
     return dedent("""\
         import os
 
@@ -49,7 +49,7 @@ def python_only_text() -> str:
 
 @pytest.fixture()
 def jsx_only_text() -> str:
-    """A .pyx file containing only JSX code."""
+    """A .pyxl file containing only JSX code."""
     return dedent("""\
         export default function Page() {
             return <h1>Hello world</h1>;
@@ -65,7 +65,7 @@ def empty_text() -> str:
 
 @pytest.fixture()
 def syntax_error_text() -> str:
-    """A .pyx file with a Python syntax error."""
+    """A .pyxl file with a Python syntax error."""
     return dedent("""\
         def broken(
             return None
@@ -79,23 +79,23 @@ def syntax_error_text() -> str:
 
 
 @pytest.fixture()
-def parsed_document(sample_pyx_text: str) -> PyxDocument:
-    """A PyxDocument parsed from the sample_pyx_text fixture."""
+def parsed_document(sample_pyxl_text: str) -> PyxDocument:
+    """A PyxDocument parsed from the sample_pyxl_text fixture."""
     parser = TolerantParser()
-    return parser.parse_text(sample_pyx_text)
+    return parser.parse_text(sample_pyxl_text)
 
 
 @pytest.fixture()
 def tmp_project(tmp_path: Path) -> Path:
-    """Create a temporary project directory with pages/ and a sample .pyx file.
+    """Create a temporary project directory with pages/ and a sample .pyxl file.
 
     Returns the root project directory.
     """
     pages_dir = tmp_path / "pages"
     pages_dir.mkdir()
 
-    index_pyx = pages_dir / "index.pyx"
-    index_pyx.write_text(
+    index_pyxl = pages_dir / "index.pyxl"
+    index_pyxl.write_text(
         dedent("""\
             @server
             async def loader(request):
@@ -110,8 +110,8 @@ def tmp_project(tmp_path: Path) -> Path:
         encoding="utf-8",
     )
 
-    about_pyx = pages_dir / "about.pyx"
-    about_pyx.write_text(
+    about_pyxl = pages_dir / "about.pyxl"
+    about_pyxl.write_text(
         dedent("""\
             export default function About() {
                 return <h1>About</h1>;

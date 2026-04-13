@@ -14,7 +14,7 @@ from pyxle_langkit.parser_adapter import TolerantParser
 
 
 class TestMapPythonLine:
-    """PyxDocument.map_python_line forward-maps virtual lines to .pyx lines."""
+    """PyxDocument.map_python_line forward-maps virtual lines to .pyxl lines."""
 
     def test_first_python_line(self, parsed_document: PyxDocument) -> None:
         result = parsed_document.map_python_line(1)
@@ -46,7 +46,7 @@ class TestMapPythonLine:
 
 
 class TestMapJsxLine:
-    """PyxDocument.map_jsx_line forward-maps virtual JSX lines to .pyx lines."""
+    """PyxDocument.map_jsx_line forward-maps virtual JSX lines to .pyxl lines."""
 
     def test_first_jsx_line(self, parsed_document: PyxDocument) -> None:
         result = parsed_document.map_jsx_line(1)

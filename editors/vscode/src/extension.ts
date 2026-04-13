@@ -76,7 +76,7 @@ function startClient(
     const clientOptions: LanguageClientOptions = {
         documentSelector: [{ scheme: "file", language: LANGUAGE_ID }],
         synchronize: {
-            fileEvents: vscode.workspace.createFileSystemWatcher("**/*.pyx"),
+            fileEvents: vscode.workspace.createFileSystemWatcher("**/*.pyxl"),
         },
         outputChannel,
     };

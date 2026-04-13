@@ -310,12 +310,12 @@ def test_jsx_only_document():
 
 
 # ------------------------------------------------------------------
-# Token line mapping to .pyx coordinates
+# Token line mapping to .pyxl coordinates
 # ------------------------------------------------------------------
 
 
-def test_tokens_mapped_to_pyx_lines():
-    """Token lines are in original .pyx coordinates (0-indexed)."""
+def test_tokens_mapped_to_pyxl_lines():
+    """Token lines are in original .pyxl coordinates (0-indexed)."""
     text = dedent("""\
         from starlette.requests import Request
 

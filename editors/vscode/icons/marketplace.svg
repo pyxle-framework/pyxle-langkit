@@ -12,7 +12,7 @@
   </defs>
   <!-- Dark rounded background -->
   <rect width="256" height="256" rx="48" fill="url(#bg)" />
-  <!-- Same P path as pyx.svg, scaled from 16x16 to 256x256 (factor 16), centered -->
+  <!-- Same P path as pyxl.svg, scaled from 16x16 to 256x256 (factor 16), centered -->
   <path d="M72 208 V48 H144 Q200 48 200 104 Q200 160 144 160 H72" stroke="url(#g)" stroke-width="25.6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
   <circle cx="144" cy="104" r="19.2" fill="#6ee7b7" />
 </svg>

@@ -25,7 +25,7 @@ def _run(coro):
 
 
 def test_find_sections_splits_python_and_jsx():
-    """_find_sections correctly splits a .pyx file into Python and JSX."""
+    """_find_sections correctly splits a .pyxl file into Python and JSX."""
     text = dedent("""\
         from starlette.requests import Request
 

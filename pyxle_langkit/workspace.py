@@ -1,6 +1,6 @@
-"""Workspace index for .pyx files.
+"""Workspace index for .pyxl files.
 
-Maintains an in-memory index of all ``.pyx`` documents in a project,
+Maintains an in-memory index of all ``.pyxl`` documents in a project,
 supporting incremental updates and cross-file symbol search.
 """
 
@@ -27,7 +27,7 @@ _SYMBOL_KIND_ACTION = "action"
 
 @dataclass(frozen=True, slots=True)
 class WorkspaceSymbol:
-    """A named symbol found in a ``.pyx`` document."""
+    """A named symbol found in a ``.pyxl`` document."""
 
     name: str
     kind: str
@@ -37,7 +37,7 @@ class WorkspaceSymbol:
 
 
 class WorkspaceIndex:
-    """In-memory index of all ``.pyx`` documents in a project workspace.
+    """In-memory index of all ``.pyxl`` documents in a project workspace.
 
     Not frozen -- this is mutable state that tracks the current set of
     parsed documents and supports incremental updates as files change.
@@ -54,7 +54,7 @@ class WorkspaceIndex:
         return self._root
 
     def scan(self) -> None:
-        """Walk ``root/pages/`` recursively and parse all ``.pyx`` files.
+        """Walk ``root/pages/`` recursively and parse all ``.pyxl`` files.
 
         Replaces the entire index with fresh parse results. Files that
         fail to parse are still indexed (with diagnostics on the
@@ -67,13 +67,13 @@ class WorkspaceIndex:
             return
 
         new_docs: dict[Path, PyxDocument] = {}
-        for pyx_path in sorted(pages_dir.rglob("*.pyx")):
-            doc = self._parser.parse(pyx_path)
-            new_docs[pyx_path] = doc
+        for pyxl_path in sorted(pages_dir.rglob("*.pyxl")):
+            doc = self._parser.parse(pyxl_path)
+            new_docs[pyxl_path] = doc
 
         self._documents = new_docs
         logger.debug(
-            "Scanned %d .pyx files under %s", len(self._documents), pages_dir
+            "Scanned %d .pyxl files under %s", len(self._documents), pages_dir
         )
 
     def update(self, path: Path, document: PyxDocument) -> None:
@@ -186,7 +186,7 @@ def _extract_symbols(doc: PyxDocument, path: Path) -> Sequence[WorkspaceSymbol]:
 def _map_to_original(
     virtual_line: int, line_numbers: tuple[int, ...],
 ) -> int:
-    """Map a 1-indexed line in the virtual Python code to the original .pyx line."""
+    """Map a 1-indexed line in the virtual Python code to the original .pyxl line."""
     if not line_numbers or virtual_line < 1:
         return virtual_line
     index = min(virtual_line - 1, len(line_numbers) - 1)

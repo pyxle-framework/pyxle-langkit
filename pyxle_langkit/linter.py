@@ -1,4 +1,4 @@
-"""Static analysis engine for ``.pyx`` files.
+"""Static analysis engine for ``.pyxl`` files.
 
 Runs Python analysis (via pyflakes), unreachable-code detection, loader/action
 validation, HEAD validation, and JSX component checks (Script, Image) to
@@ -48,7 +48,7 @@ class LintIssue:
     severity:
         ``"error"``, ``"warning"``, or ``"info"``.
     line:
-        1-indexed line number in the original ``.pyx`` file.
+        1-indexed line number in the original ``.pyxl`` file.
     column:
         1-indexed column number, or ``0`` when unknown.
     """
@@ -129,7 +129,7 @@ _ALLOWED_SCRIPT_STRATEGIES: frozenset[str] = frozenset(
 
 
 class PyxLinter:
-    """Full static-analysis engine for ``.pyx`` documents.
+    """Full static-analysis engine for ``.pyxl`` documents.
 
     Runs Python analysis (pyflakes + unreachable code), loader/action
     validation, HEAD validation, and JSX component checks.  All checks
@@ -372,7 +372,7 @@ class PyxLinter:
         if not document.head_elements and not document.head_is_dynamic:
             return ()
 
-        # Locate the HEAD assignment line in the original .pyx source.
+        # Locate the HEAD assignment line in the original .pyxl source.
         head_line: int = 0
         if document.has_python:
             try:

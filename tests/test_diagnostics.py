@@ -118,35 +118,35 @@ class TestParserDiagnosticsToLsp:
     """Convert PyxDiagnostic entries to LSP Diagnostic objects."""
 
     def test_python_section_source(self) -> None:
-        pyx_diag = PyxDiagnostic(
+        pyxl_diag = PyxDiagnostic(
             section="python",
             severity="error",
             message="SyntaxError: invalid syntax",
             line=5,
         )
-        diagnostics = parser_diagnostics_to_lsp([pyx_diag])
+        diagnostics = parser_diagnostics_to_lsp([pyxl_diag])
         assert len(diagnostics) == 1
         assert diagnostics[0].source == "pyxle-parser"
 
     def test_jsx_section_source(self) -> None:
-        pyx_diag = PyxDiagnostic(
+        pyxl_diag = PyxDiagnostic(
             section="jsx",
             severity="error",
             message="Unexpected token <",
             line=12,
         )
-        diagnostics = parser_diagnostics_to_lsp([pyx_diag])
+        diagnostics = parser_diagnostics_to_lsp([pyxl_diag])
         assert len(diagnostics) == 1
         assert diagnostics[0].source == "babel"
 
     def test_line_conversion(self) -> None:
-        pyx_diag = PyxDiagnostic(
+        pyxl_diag = PyxDiagnostic(
             section="python",
             severity="warning",
             message="possible issue",
             line=7,
         )
-        diagnostics = parser_diagnostics_to_lsp([pyx_diag])
+        diagnostics = parser_diagnostics_to_lsp([pyxl_diag])
         # Line 7 -> 0-indexed line 6.
         assert diagnostics[0].range.start.line == 6
 
@@ -154,13 +154,13 @@ class TestParserDiagnosticsToLsp:
         assert parser_diagnostics_to_lsp([]) == []
 
     def test_none_line_defaults_to_zero(self) -> None:
-        pyx_diag = PyxDiagnostic(
+        pyxl_diag = PyxDiagnostic(
             section="python",
             severity="error",
             message="unknown position",
             line=None,
         )
-        diagnostics = parser_diagnostics_to_lsp([pyx_diag])
+        diagnostics = parser_diagnostics_to_lsp([pyxl_diag])
         assert diagnostics[0].range.start.line == 0
 
 
@@ -200,14 +200,14 @@ class TestSeverityMapping:
 class TestNullLineDefaultsToZero:
     """When line is None or zero, it defaults to LSP line 0."""
 
-    def test_pyx_diagnostic_none_line(self) -> None:
-        pyx_diag = PyxDiagnostic(
+    def test_pyxl_diagnostic_none_line(self) -> None:
+        pyxl_diag = PyxDiagnostic(
             section="python",
             severity="error",
             message="no line",
             line=None,
         )
-        diagnostics = parser_diagnostics_to_lsp([pyx_diag])
+        diagnostics = parser_diagnostics_to_lsp([pyxl_diag])
         assert diagnostics[0].range.start.line == 0
 
     def test_compilation_error_none_line(self) -> None:
