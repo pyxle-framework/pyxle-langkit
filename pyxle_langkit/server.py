@@ -24,6 +24,7 @@ from lsprotocol.types import (
     TEXT_DOCUMENT_FORMATTING,
     TEXT_DOCUMENT_HOVER,
     TEXT_DOCUMENT_SEMANTIC_TOKENS_FULL,
+    WORKSPACE_DID_CHANGE_WATCHED_FILES,
     WORKSPACE_SYMBOL,
     CompletionItem,
     CompletionItemKind,
@@ -33,6 +34,7 @@ from lsprotocol.types import (
     DefinitionParams,
     Diagnostic,
     DidChangeTextDocumentParams,
+    DidChangeWatchedFilesParams,
     DidCloseTextDocumentParams,
     DidOpenTextDocumentParams,
     DidSaveTextDocumentParams,
@@ -168,7 +170,14 @@ def _on_initialized(server: PyxleLanguageServer, params: object) -> None:
         server._project_root = root_path
 
     # Start the TypeScript language service for JSX intelligence.
-    server._ts_bridge.start(project_root=root_path)
+    ts_ok = server._ts_bridge.start(project_root=root_path)
+    if ts_ok:
+        logger.info("TypeScript bridge started — JSX intelligence available")
+    else:
+        logger.warning(
+            "TypeScript bridge failed to start — JSX completions, hover, "
+            "and go-to-definition will be limited to Pyxle built-in components"
+        )
 
     logger.info("Pyxle language server initialized (root=%s)", root_path)
 
@@ -208,6 +217,16 @@ def _on_did_close(
     server.publish_diagnostics(uri, [])
 
 
+@_server.feature(WORKSPACE_DID_CHANGE_WATCHED_FILES)
+def _on_did_change_watched_files(
+    server: PyxleLanguageServer, params: DidChangeWatchedFilesParams
+) -> None:
+    """Re-publish diagnostics for changed files."""
+    for change in params.changes:
+        if change.uri.endswith(".pyxl"):
+            _publish_diagnostics(server, change.uri)
+
+
 # ------------------------------------------------------------------
 # Completions
 # ------------------------------------------------------------------
@@ -220,31 +239,35 @@ def _on_did_close(
 def _on_completion(
     server: PyxleLanguageServer, params: CompletionParams
 ) -> CompletionList:
-    document = _get_document(server, params.text_document.uri)
-    if document is None:
+    try:
+        document = _get_document(server, params.text_document.uri)
+        if document is None:
+            return CompletionList(is_incomplete=False, items=[])
+
+        line = params.position.line + 1      # LSP is 0-indexed → 1-indexed
+        column = params.position.character   # already 0-indexed
+
+        # Python completions via jedi + Pyxle-specific JSX completions.
+        items = list(server._completions.complete(document, line, column))
+
+        # TypeScript completions for JSX sections.
+        section = document.section_at_line(line)
+        if section == "jsx" and server._ts_bridge.is_running and document.path:
+            ts_items = server._ts_bridge.completions(
+                document.path, params.position.line, column,
+            )
+            for ts_item in ts_items:
+                items.append(CompletionItem(
+                    label=ts_item.label,
+                    kind=_TS_COMPLETION_KIND.get(ts_item.kind, CompletionItemKind.Text),
+                    sort_text=ts_item.sort_text,
+                    insert_text=ts_item.insert_text,
+                ))
+
+        return CompletionList(is_incomplete=False, items=items)
+    except Exception:
+        logger.exception("Completion handler failed")
         return CompletionList(is_incomplete=False, items=[])
-
-    line = params.position.line + 1      # LSP is 0-indexed → 1-indexed
-    column = params.position.character   # already 0-indexed
-
-    # Python completions via jedi + Pyxle-specific JSX completions.
-    items = list(server._completions.complete(document, line, column))
-
-    # TypeScript completions for JSX sections.
-    section = document.section_at_line(line)
-    if section == "jsx" and server._ts_bridge.is_running and document.path:
-        ts_items = server._ts_bridge.completions(
-            document.path, params.position.line, column,
-        )
-        for ts_item in ts_items:
-            items.append(CompletionItem(
-                label=ts_item.label,
-                kind=_TS_COMPLETION_KIND.get(ts_item.kind, CompletionItemKind.Text),
-                sort_text=ts_item.sort_text,
-                insert_text=ts_item.insert_text,
-            ))
-
-    return CompletionList(is_incomplete=False, items=items)
 
 
 # ------------------------------------------------------------------
@@ -256,34 +279,38 @@ def _on_completion(
 def _on_hover(
     server: PyxleLanguageServer, params: HoverParams
 ) -> Hover | None:
-    document = _get_document(server, params.text_document.uri)
-    if document is None:
+    try:
+        document = _get_document(server, params.text_document.uri)
+        if document is None:
+            return None
+
+        line = params.position.line + 1
+        column = params.position.character
+
+        # Try Pyxle-specific hover first (decorators, components).
+        content = server._hover.hover(document, line, column)
+
+        # For JSX sections, also try TypeScript hover if Pyxle hover is empty.
+        if content is None and document.section_at_line(line) == "jsx":
+            if server._ts_bridge.is_running and document.path:
+                ts_info = server._ts_bridge.quick_info(
+                    document.path, params.position.line, column,
+                )
+                if ts_info and ts_info.display:
+                    parts = [f"```typescript\n{ts_info.display}\n```"]
+                    if ts_info.documentation:
+                        parts.append(ts_info.documentation)
+                    content = "\n\n".join(parts)
+
+        if content is None:
+            return None
+
+        return Hover(
+            contents=MarkupContent(kind=MarkupKind.Markdown, value=content),
+        )
+    except Exception:
+        logger.exception("Hover handler failed")
         return None
-
-    line = params.position.line + 1
-    column = params.position.character
-
-    # Try Pyxle-specific hover first (decorators, components).
-    content = server._hover.hover(document, line, column)
-
-    # For JSX sections, also try TypeScript hover if Pyxle hover is empty.
-    if content is None and document.section_at_line(line) == "jsx":
-        if server._ts_bridge.is_running and document.path:
-            ts_info = server._ts_bridge.quick_info(
-                document.path, params.position.line, column,
-            )
-            if ts_info and ts_info.display:
-                parts = [f"```typescript\n{ts_info.display}\n```"]
-                if ts_info.documentation:
-                    parts.append(ts_info.documentation)
-                content = "\n\n".join(parts)
-
-    if content is None:
-        return None
-
-    return Hover(
-        contents=MarkupContent(kind=MarkupKind.Markdown, value=content),
-    )
 
 
 # ------------------------------------------------------------------
@@ -295,40 +322,42 @@ def _on_hover(
 def _on_definition(
     server: PyxleLanguageServer, params: DefinitionParams
 ) -> list[Location] | None:
-    document = _get_document(server, params.text_document.uri)
-    if document is None:
-        return None
+    try:
+        document = _get_document(server, params.text_document.uri)
+        if document is None:
+            return None
 
-    line = params.position.line + 1
-    column = params.position.character
+        line = params.position.line + 1
+        column = params.position.character
 
-    # Try Pyxle-specific definitions first (jedi + cross-section data.key).
-    definitions = server._definitions.goto_definition(document, line, column)
+        # Try Pyxle-specific definitions first (jedi + cross-section data.key).
+        definitions = server._definitions.goto_definition(document, line, column)
 
-    locations: list[Location] = []
-    for defn in definitions:
-        uri = _path_to_uri(defn.path)
-        pos = Position(line=max(defn.line - 1, 0), character=defn.column)
-        locations.append(
-            Location(uri=uri, range=Range(start=pos, end=pos))
-        )
-
-    # For JSX sections, also try TypeScript definitions.
-    if not locations and document.section_at_line(line) == "jsx":
-        if server._ts_bridge.is_running and document.path:
-            ts_defs = server._ts_bridge.definition(
-                document.path, params.position.line, column,
+        locations: list[Location] = []
+        for defn in definitions:
+            uri = _path_to_uri(defn.path)
+            pos = Position(line=max(defn.line - 1, 0), character=defn.column)
+            locations.append(
+                Location(uri=uri, range=Range(start=pos, end=pos))
             )
-            for ts_def in ts_defs:
-                def_path = Path(ts_def.file)
-                # If the definition points to a .pyxl file, use the .pyxl URI.
-                # If it points to a .js/.jsx/.ts file, use that directly.
-                uri = _path_to_uri(def_path)
-                pos = Position(line=ts_def.line, character=ts_def.character)
-                locations.append(
-                    Location(uri=uri, range=Range(start=pos, end=pos))
+
+        # For JSX sections, also try TypeScript definitions.
+        if not locations and document.section_at_line(line) == "jsx":
+            if server._ts_bridge.is_running and document.path:
+                ts_defs = server._ts_bridge.definition(
+                    document.path, params.position.line, column,
                 )
-    return locations
+                for ts_def in ts_defs:
+                    def_path = Path(ts_def.file)
+                    uri = _path_to_uri(def_path)
+                    pos = Position(line=ts_def.line, character=ts_def.character)
+                    locations.append(
+                        Location(uri=uri, range=Range(start=pos, end=pos))
+                    )
+        return locations
+    except Exception:
+        logger.exception("Definition handler failed")
+        return None
 
 
 # ------------------------------------------------------------------
