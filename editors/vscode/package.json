@@ -2,7 +2,7 @@
   "name": "pyxle-language-tools",
   "displayName": "Pyxle Language Tools",
   "publisher": "pyxle",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Language support for Pyxle .pyxl files — syntax highlighting, diagnostics, completions, hover, go-to-definition, and formatting.",
   "license": "MIT",
   "repository": {
@@ -13,28 +13,44 @@
     "url": "https://github.com/pyxle-framework/pyxle-langkit/issues"
   },
   "homepage": "https://pyxle.dev",
-  "keywords": ["pyxle", "pyxl", "python", "react", "jsx", "lsp"],
+  "keywords": [
+    "pyxle",
+    "pyxl",
+    "python",
+    "react",
+    "jsx",
+    "lsp"
+  ],
   "engines": {
     "vscode": "^1.85.0"
   },
   "icon": "icons/pyxl.png",
-  "categories": ["Programming Languages"],
-  "activationEvents": ["onLanguage:pyxle"],
+  "categories": [
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onLanguage:pyxle"
+  ],
   "main": "./out/extension.js",
   "scripts": {
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "compile": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
     "lint": "tsc --noEmit",
     "pretest": "npm run compile",
     "test": "node ./out/test/runTest.js",
-    "package": "npx @vscode/vsce package --no-dependencies"
+    "package": "npm run compile && npx @vscode/vsce package --no-dependencies"
   },
   "contributes": {
     "languages": [
       {
         "id": "pyxle",
-        "aliases": ["Pyxle", "pyxle"],
-        "extensions": [".pyxl"],
+        "aliases": [
+          "Pyxle",
+          "pyxle"
+        ],
+        "extensions": [
+          ".pyxl"
+        ],
         "configuration": "./language-configuration.json",
         "icon": {
           "light": "./icons/pyxl.svg",
@@ -64,20 +80,31 @@
           },
           "pyxle.langserver.args": {
             "type": "array",
-            "items": { "type": "string" },
-            "default": ["--stdio"],
+            "items": {
+              "type": "string"
+            },
+            "default": [
+              "--stdio"
+            ],
             "description": "Arguments forwarded to the language server command."
           },
           "pyxle.formatting.python": {
             "type": "string",
             "default": "ruff",
-            "enum": ["ruff", "black", "none"],
+            "enum": [
+              "ruff",
+              "black",
+              "none"
+            ],
             "description": "Python formatter for .pyxl files."
           },
           "pyxle.formatting.jsx": {
             "type": "string",
             "default": "prettier",
-            "enum": ["prettier", "none"],
+            "enum": [
+              "prettier",
+              "none"
+            ],
             "description": "JSX formatter for .pyxl files."
           },
           "pyxle.diagnostics.pyflakes": {
@@ -98,10 +125,11 @@
     "vscode-languageclient": "^9.0.1"
   },
   "devDependencies": {
-    "typescript": "^5.3.0",
-    "@types/vscode": "^1.85.0",
     "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
     "@vscode/test-electron": "^2.3.0",
-    "@vscode/vsce": "^2.22.0"
+    "@vscode/vsce": "^2.22.0",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.3.0"
   }
 }

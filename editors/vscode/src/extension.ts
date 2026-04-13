@@ -19,6 +19,9 @@
  */
 
 import * as vscode from "vscode";
+import * as cp from "child_process";
+import * as path from "path";
+import * as fs from "fs";
 import {
     LanguageClient,
     LanguageClientOptions,
@@ -43,9 +46,26 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(outputChannel);
 
     statusBar = createStatusBar(context);
-    updateStatus(statusBar, StatusState.Starting);
 
-    startClient(context, 0);
+    context.subscriptions.push(
+        vscode.commands.registerCommand("pyxle.showInstallGuide", () => {
+            vscode.window
+                .showInformationMessage(
+                    "Install the Pyxle language server with: pip install pyxle-langkit",
+                    "Copy Command",
+                )
+                .then((choice) => {
+                    if (choice === "Copy Command") {
+                        vscode.env.clipboard.writeText(
+                            "pip install pyxle-langkit",
+                        );
+                        vscode.window.showInformationMessage("Copied to clipboard.");
+                    }
+                });
+        }),
+    );
+
+    resolveAndStart(context);
 }
 
 /* ------------------------------------------------------------------ */
@@ -57,15 +77,123 @@ export function deactivate(): Thenable<void> | undefined {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Server resolution                                                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Resolve the ``pyxle-langserver`` command and start the LSP client.
+ *
+ * Resolution order:
+ * 1. User-configured ``pyxle.langserver.command`` (if explicitly changed)
+ * 2. Python environment detection (``python3 -m pyxle_langkit.server``)
+ * 3. Common install paths (``~/.local/bin``, pyenv shims)
+ * 4. System PATH (bare ``pyxle-langserver``)
+ */
+async function resolveAndStart(
+    context: vscode.ExtensionContext,
+): Promise<void> {
+    updateStatus(statusBar, StatusState.Starting);
+
+    const config = vscode.workspace.getConfiguration("pyxle.langserver");
+    const userCommand = config.get<string>("command", "pyxle-langserver");
+
+    // If the user explicitly set a custom command, trust it.
+    const inspected = config.inspect<string>("command");
+    const isExplicitlySet =
+        inspected?.workspaceValue !== undefined ||
+        inspected?.workspaceFolderValue !== undefined ||
+        inspected?.globalValue !== undefined;
+
+    if (isExplicitlySet) {
+        outputChannel.appendLine(
+            `Using configured command: ${userCommand}`,
+        );
+        startClient(context, userCommand, 0);
+        return;
+    }
+
+    // Auto-detect: try to find pyxle-langserver.
+    const resolved = await detectLangserver();
+    if (resolved) {
+        outputChannel.appendLine(`Auto-detected language server: ${resolved}`);
+        startClient(context, resolved, 0);
+        return;
+    }
+
+    // Not found anywhere.
+    outputChannel.appendLine(
+        "pyxle-langserver not found. Install via: pip install pyxle-langkit",
+    );
+    updateStatus(statusBar, StatusState.NotFound);
+    vscode.window
+        .showWarningMessage(
+            "Pyxle Language Server not found. Install it with: pip install pyxle-langkit",
+            "Copy Command",
+        )
+        .then((choice) => {
+            if (choice === "Copy Command") {
+                vscode.env.clipboard.writeText("pip install pyxle-langkit");
+                vscode.window.showInformationMessage("Copied to clipboard.");
+            }
+        });
+}
+
+/**
+ * Try to find ``pyxle-langserver`` in common locations.
+ */
+async function detectLangserver(): Promise<string | undefined> {
+    const home = process.env.HOME || process.env.USERPROFILE || "";
+
+    // 1. Check if bare command is on PATH.
+    const onPath = await whichCommand("pyxle-langserver");
+    if (onPath) return onPath;
+
+    // 2. Check common install locations.
+    const candidates = [
+        path.join(home, ".local", "bin", "pyxle-langserver"),
+        path.join(home, ".pyenv", "shims", "pyxle-langserver"),
+    ];
+    for (const p of candidates) {
+        if (isExecutable(p)) return p;
+    }
+
+    return undefined;
+}
+
+function isExecutable(p: string): boolean {
+    try {
+        fs.accessSync(p, fs.constants.X_OK);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function whichCommand(cmd: string): Promise<string | undefined> {
+    return new Promise((resolve) => {
+        cp.exec(
+            process.platform === "win32" ? `where ${cmd}` : `which ${cmd}`,
+            (err, stdout) => {
+                if (err || !stdout.trim()) {
+                    resolve(undefined);
+                } else {
+                    resolve(stdout.trim().split("\n")[0]);
+                }
+            },
+        );
+    });
+}
+
+/* ------------------------------------------------------------------ */
 /*  Client lifecycle                                                  */
 /* ------------------------------------------------------------------ */
 
 function startClient(
     context: vscode.ExtensionContext,
+    command: string,
     attempt: number,
 ): void {
     const config = vscode.workspace.getConfiguration("pyxle.langserver");
-    const command = config.get<string>("command", "pyxle-langserver");
     const args = config.get<string[]>("args", ["--stdio"]);
 
     const serverOptions: ServerOptions = {
@@ -113,17 +241,22 @@ function startClient(
             outputChannel.appendLine(
                 `Retrying in ${RETRY_DELAY_MS}ms (attempt ${next}/${MAX_RETRIES})...`,
             );
-            setTimeout(() => startClient(context, next), RETRY_DELAY_MS);
+            setTimeout(() => startClient(context, command, next), RETRY_DELAY_MS);
         } else {
             updateStatus(statusBar, StatusState.Failed);
             vscode.window
                 .showErrorMessage(
-                    `Pyxle Language Server failed after ${MAX_RETRIES} attempts. Is pyxle-langserver installed?`,
+                    `Pyxle Language Server failed after ${MAX_RETRIES} attempts. Is pyxle-langserver installed?\nInstall via: pip install pyxle-langkit`,
+                    "Copy Install Command",
                     "Show Output",
                 )
                 .then((choice) => {
                     if (choice === "Show Output") {
                         outputChannel.show();
+                    } else if (choice === "Copy Install Command") {
+                        vscode.env.clipboard.writeText(
+                            "pip install pyxle-langkit",
+                        );
                     }
                 });
         }

@@ -9,6 +9,7 @@ export const enum StatusState {
     Running,
     Retrying,
     Failed,
+    NotFound,
 }
 
 /**
@@ -54,6 +55,12 @@ export function updateStatus(
             item.text = "$(error) Pyxle";
             item.tooltip =
                 "Pyxle Language Server: failed to start. Check Output panel.";
+            break;
+        case StatusState.NotFound:
+            item.text = "$(warning) Pyxle";
+            item.tooltip =
+                "Pyxle Language Server not found. Install via: pip install pyxle-langkit";
+            item.command = "pyxle.showInstallGuide";
             break;
     }
 }

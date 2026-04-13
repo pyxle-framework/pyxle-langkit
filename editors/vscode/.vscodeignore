@@ -6,5 +6,6 @@ node_modules/**
 .vscode/**
 .ruff_cache/**
 tsconfig.json
+esbuild.js
 **/*.map
 **/*.vsix
